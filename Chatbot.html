@@ -4,17 +4,45 @@
   <meta charset="UTF-8">
   <title>Chatbot Kirana</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f7f7f7; margin:0; }
-    #chat { max-width: 90%; margin: 0 auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-    #messages { height: 70%; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
-    .msg { margin: 8px 0; padding: 6px 10px; border-radius: 8px; max-width: 80%; }
-    .user { background: #DCF8C6; margin-left:auto; text-align:right; }
-    .bot { background: #eee; margin-right:auto; text-align:left; }
-    #input-area { display: flex; gap: 5px; }
-    #input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 8px; }
-    button { padding: 8px 16px; border:none; border-radius: 8px; background: #25D366; color:white; cursor:pointer; }
-    button:hover { background: #1EBE57; }
-  </style>
+  .chat-container {
+    width: 100%;
+    max-width: 400px;   /* supaya pas di HP */
+    height: 80vh;       /* tinggi 80% layar */
+    margin: 20px auto;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #chatbox {
+    flex: 1;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #fff;
+  }
+
+  #user-input {
+    display: flex;
+    gap: 5px;
+  }
+
+  #message {
+    flex: 1;
+    padding: 8px;
+  }
+
+  #send {
+    padding: 8px 15px;
+    background: green;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+</style>
 </head>
 <body>
   <div id="chat">
