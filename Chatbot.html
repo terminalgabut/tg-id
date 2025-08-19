@@ -2,129 +2,121 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chatbot Gabut</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      background: #f1f1f1;
       margin: 0;
       padding: 0;
-      background: #f0f0f0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
     }
-
     .chat-container {
       width: 100%;
-      max-width: 480px;
-      height: 96vh;
-      background: #fff;
+      max-width: 500px;
+      margin: auto;
+      height: 100vh;
       display: flex;
       flex-direction: column;
       border: 1px solid #ccc;
+      background: #fff;
     }
-
-    .chat-header {
-      background: #4CAF50;
-      color: white;
-      padding: 12px;
-      font-weight: bold;
-      text-align: center;
-    }
-
-    #chatbox {
+    .chat-box {
       flex: 1;
+      padding: 10px;
       overflow-y: auto;
-      padding: 10px;
-      background: #e5ddd5;
     }
-
     .message {
-      margin: 8px 0;
-      max-width: 75%;
+      margin: 5px 0;
       padding: 10px;
-      border-radius: 10px;
-      clear: both;
+      border-radius: 15px;
+      max-width: 70%;
       word-wrap: break-word;
     }
-
-    .bot {
-      background: #fff;
-      float: left;
-      border: 1px solid #ddd;
-    }
-
     .user {
       background: #dcf8c6;
-      float: right;
+      align-self: flex-end;
+      border-bottom-right-radius: 0;
     }
-
-    #user-input {
+    .bot {
+      background: #e5e5ea;
+      align-self: flex-start;
+      border-bottom-left-radius: 0;
+    }
+    .input-box {
       display: flex;
       padding: 10px;
       border-top: 1px solid #ccc;
-      background: #f9f9f9;
     }
-
-    #message {
+    .input-box input {
       flex: 1;
-      padding: 8px;
+      padding: 10px;
       border: 1px solid #ccc;
       border-radius: 20px;
+      outline: none;
     }
-
-    #send {
-      margin-left: 5px;
-      padding: 8px 15px;
-      background: #4CAF50;
-      color: white;
+    .input-box button {
+      margin-left: 10px;
+      padding: 10px 15px;
       border: none;
+      background: #4caf50;
+      color: white;
       border-radius: 20px;
       cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div id="chat">
-    <h2>🤖 Chatbot Gabut</h2>
-    <div id="messages"></div>
-    <div id="input-area">
-      <input type="text" id="input" placeholder="Tulis pesan..." onkeydown="if(event.key==='Enter')sendMessage()">
+  <div class="chat-container">
+    <div class="chat-box" id="chatBox">
+      <div class="message bot">👋 Hai! Aku Kirana, ada yang bisa aku bantu?</div>
+    </div>
+    <div class="input-box">
+      <input type="text" id="userInput" placeholder="Tulis pesan...">
       <button onclick="sendMessage()">Kirim</button>
     </div>
   </div>
 
   <script>
     async function sendMessage() {
-      const input = document.getElementById("input");
-      const userMsg = input.value.trim();
-      if (!userMsg) return;
+      const input = document.getElementById("userInput");
+      const chatBox = document.getElementById("chatBox");
+      const message = input.value.trim();
+      if (!message) return;
+
+      // tampilkan pesan user
+      const userMsg = document.createElement("div");
+      userMsg.className = "message user";
+      userMsg.innerText = message;
+      chatBox.appendChild(userMsg);
+
+      // scroll ke bawah
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      // kosongkan input
       input.value = "";
 
-      addMessage(userMsg, "user");
-
+      // fetch ke server Replit
       try {
         const res = await fetch("https://9e251f86-ee8f-49a0-9533-0f8ff235672f-00-34xa2z3rxky31.riker.replit.dev/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: userMsg })
+          body: JSON.stringify({ message })
         });
-
         const data = await res.json();
-        addMessage(data.reply, "bot");
-      } catch (err) {
-        addMessage("⚠️ Gagal konek ke server.", "bot");
-      }
-    }
 
-    function addMessage(text, sender) {
-      const msgDiv = document.createElement("div");
-      msgDiv.className = "msg " + sender;
-      msgDiv.innerText = text;
-      const messages = document.getElementById("messages");
-      messages.appendChild(msgDiv);
-      messages.scrollTop = messages.scrollHeight;
+        // tampilkan balasan bot
+        const botMsg = document.createElement("div");
+        botMsg.className = "message bot";
+        botMsg.innerText = data.reply;
+        chatBox.appendChild(botMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      } catch (err) {
+        const botMsg = document.createElement("div");
+        botMsg.className = "message bot";
+        botMsg.innerText = "⚠️ Error: tidak bisa terhubung ke server.";
+        chatBox.appendChild(botMsg);
+      }
     }
   </script>
 </body>
