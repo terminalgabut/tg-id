@@ -1,169 +1,198 @@
-<!DOCTYPE html>  <html lang="id">  
-<head>  
-  <meta charset="UTF-8">  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-  <title>🤖 Hmmz Chatbot</title>    <!-- LIBRARY MARKDOWN -->    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>    <style>  
-    body {  
-      margin: 0;  
-      padding: 0;  
-      font-family: "Helvetica Neue", Arial, sans-serif;  
-      background-color: #e5ddd5;  
-      display: flex;  
-      justify-content: center;  
-      align-items: center;  
-      height: 100vh;  
-    }  
-    .chat-container {  
-      width: 92%;  
-      height: 85vh;  
-      max-width: 100vh  
-      background-color: #fff;  
-      border-radius: 15px;  
-      display: flex;  
-      flex-direction: column;  
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);  
-      overflow: hidden;  
-    }  
-    /* HEADER FIXED */  
-    .header-container {  
-      background-color: #00c300;  
-      color: white;  
-      padding: 15px;  
-      text-align: center;  
-      position: sticky;  
-      top: 0;  
-      z-index: 10;  
-      border-bottom: 3px solid #e5ddd5;  
-      margin-bottom: 7px  
-    }  
-    .header-container h1 {  
-      margin: 0;  
-      font-size: 20px;  
-    }  
-    .header-container p {  
-      margin: 3px 0 0 0;  
-      font-size: 12px;  
-      opacity: 0.9;  
-    }  
-    .messages {  
-      flex: 1;  
-      padding: 15px;  
-      display: flex;  
-      flex-direction: column;  
-      overflow-y: auto;  
-      gap: 10px;  
-    }  
-    .message {  
-    max-width: 75%;  
-    padding: 6px 10px;      /* tipis seperti LINE */  
-    border-radius: 16px;  
-    font-size: 14px;        /* font lebih kecil */  
-    line-height: 1.4;       /* biar rapi */  
-    word-wrap: break-word;  
-    }  
-  
-    /* Bubble user (kanan) */  
-    .user {  
-    align-self: flex-end;  
-    background-color: #00c300;  /* hijau khas LINE */  
-    color: #fff;  
-    border-bottom-right-radius: 4px;  /* sudut bawah lebih kotak */  
-    }  
-  
-    /* Bubble bot (kiri) */  
-    .bot {  
-    align-self: flex-start;  
-    background-color: #f5f5f5;  /* abu terang */  
-    color: #000;  
-    border-bottom-left-radius: 4px;  
-    }  
-    .input-container {  
-      display: flex;  
-      padding: 10px;  
-      background-color: #f0f0f0;  
-    }  
-    input {  
-      flex: 1;  
-      padding: 10px 15px;  
-      border-radius: 25px;  
-      border: 1px solid #ccc;  
-      outline: none;  
-    }  
-    button {  
-      margin-left: 10px;  
-      padding: 10px 20px;  
-      border-radius: 25px;  
-      border: none;  
-      background-color: #00c300;  
-      color: #fff;  
-      cursor: pointer;  
-      font-weight: bold;  
-    }  
-    button:hover {  
-      background-color: #00a000;  
-    }  
-  </style>  </head>  
-<body>  
-  <div class="chat-container">  
-    <!-- HEADER -->  
-    <div class="header-container">  
-      <h1>🤖 Hmmz Bot</h1>  
-      <p>Serba siap membantu anda</p>  
-    </div>  <!-- CHAT MESSAGES -->  
-<div class="messages" id="messages"></div>  
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🤖 Hmmz Chatbot</title>
 
-<!-- INPUT -->  
-<div class="input-container">  
-  <input type="text" id="userInput" placeholder="Tulis pesan..." />  
-  <button onclick="sendMessage()">Kirim</button>  
-</div>
+  <!-- LIBRARY MARKDOWN -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-  </div>    <script>  
-    const apiUrl = 'https://2aa809b4-4845-4024-a0db-62fb8df3f7bb-00-1uf4phwu2ppzh.riker.replit.dev/chat';  
-  
-    function appendMessage(text, sender) {  
-      const messagesDiv = document.getElementById('messages');  
-      const msgDiv = document.createElement('div');  
-      msgDiv.className = 'message ' + sender;  
-  
-      // parse markdown agar bold, list, emoji dll terbaca  
-      msgDiv.innerHTML = marked.parse(text);  
-  
-      messagesDiv.appendChild(msgDiv);  
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;  
-    }  
-  
-    async function sendMessage() {  
-      const input = document.getElementById('userInput');  
-      const message = input.value.trim();  
-      if (!message) return;  
-  
-      appendMessage(message, 'user');  
-      input.value = '';  
-  
-      try {  
-        const response = await fetch(apiUrl, {  
-          method: 'POST',  
-          headers: { 'Content-Type': 'application/json' },  
-          body: JSON.stringify({ message })  
-        });  
-  
-        if (!response.ok) throw new Error('Server error');  
-        const data = await response.json();  
-        appendMessage(data.reply, 'bot');  
-  
-      } catch (error) {  
-        appendMessage('❌ Terjadi error: ' + error.message, 'bot');  
-      }  
-    }  
-  
-    document.getElementById('userInput').addEventListener('keypress', function(e) {  
-      if (e.key === 'Enter') sendMessage();  
-    });  
-  
-    // Pesan awal contoh  
-    appendMessage("**Hmmz Bot**: Halo! Saya Hmmz Bot, asisten pribadi Anda. 😊\n\n**Menu pilihan:**\n- 📚 Belajar - Penjelasan topik apa saja\n- 🎉 Hiburan - Lelucon, cerita, atau games\n- 💡 Ide Kreatif - Brainstorming dan inspirasi\n- 🔧 Bantuan Teknis - Solusi masalah teknis\n- ⚡ Info Cepat - Fakta dan informasi singkat", "bot");  
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background-color: #e5ddd5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .chat-container {
+      width: 92%;
+      height: 85vh;
+      max-width: 100vh;
+      background-color: #fff;
+      border-radius: 15px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    /* HEADER FIXED */
+    .header-container {
+      background-color: #075E54;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 3px solid #e5ddd5;
+      margin-bottom: 7px;
+    }
+    .header-container h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+    .header-container p {
+      margin: 3px 0 0 0;
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    .messages {
+      flex: 1;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      gap: 10px;
+    }
+    .message {
+      max-width: 75%;
+      padding: 6px 10px 14px 10px; /* bawah lebih lega utk jam */
+      border-radius: 7.5px;
+      font-size: 14px;
+      line-height: 1.4;
+      word-wrap: break-word;
+      position: relative;  /* supaya timestamp bisa absolute */
+    }
+
+    /* Bubble user (kanan - hijau muda WA) */
+    .user {
+      align-self: flex-end;
+      background-color: #dcf8c6;
+      color: #000;
+      border-bottom-right-radius: 0;
+    }
+
+    /* Bubble bot (kiri - putih WA) */
+    .bot {
+      align-self: flex-start;
+      background-color: #fff;
+      color: #000;
+      border-bottom-left-radius: 0;
+      border: 1px solid #eee;
+    }
+
+    /* Timestamp */
+    .timestamp {
+      font-size: 11px;
+      color: gray;
+      position: absolute;
+      bottom: 2px;
+      right: 8px;
+    }
+
+    .input-container {
+      display: flex;
+      padding: 10px;
+      background-color: #f0f0f0;
+    }
+    input {
+      flex: 1;
+      padding: 10px 15px;
+      border-radius: 25px;
+      border: 1px solid #ccc;
+      outline: none;
+    }
+    button {
+      margin-left: 10px;
+      padding: 10px 20px;
+      border-radius: 25px;
+      border: none;
+      background-color: #25D366; /* warna WA */
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #20b85c;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <!-- HEADER -->
+    <div class="header-container">
+      <h1>🤖 Hmmz Bot</h1>
+      <p>Serba siap membantu anda</p>
+    </div>
+
+    <!-- CHAT MESSAGES -->
+    <div class="messages" id="messages"></div>
+
+    <!-- INPUT -->
+    <div class="input-container">
+      <input type="text" id="userInput" placeholder="Tulis pesan..." />
+      <button onclick="sendMessage()">Kirim</button>
+    </div>
+  </div>
+
+  <script>
+    const apiUrl = 'https://2aa809b4-4845-4024-a0db-62fb8df3f7bb-00-1uf4phwu2ppzh.riker.replit.dev/chat';
+
+    function appendMessage(text, sender) {
+      const messagesDiv = document.getElementById('messages');
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message ' + sender;
+
+      // parse markdown agar bold, list, emoji dll terbaca
+      msgDiv.innerHTML = marked.parse(text);
+
+      // Tambah timestamp
+      const timeSpan = document.createElement('span');
+      timeSpan.className = 'timestamp';
+      const now = new Date();
+      timeSpan.textContent = now.getHours().toString().padStart(2,'0') + ":" +
+                             now.getMinutes().toString().padStart(2,'0');
+      msgDiv.appendChild(timeSpan);
+
+      messagesDiv.appendChild(msgDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('userInput');
+      const message = input.value.trim();
+      if (!message) return;
+
+      appendMessage(message, 'user');
+      input.value = '';
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+
+        if (!response.ok) throw new Error('Server error');
+        const data = await response.json();
+        appendMessage(data.reply, 'bot');
+
+      } catch (error) {
+        appendMessage('❌ Terjadi error: ' + error.message, 'bot');
+      }
+    }
+
+    document.getElementById('userInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // Pesan awal contoh
+    appendMessage("**Hmmz Bot**: Halo! Saya Hmmz Bot, asisten pribadi Anda. 😊\n\n**Menu pilihan:**\n- 📚 Belajar - Penjelasan topik apa saja\n- 🎉 Hiburan - Lelucon, cerita, atau games\n- 💡 Ide Kreatif - Brainstorming dan inspirasi\n- 🔧 Bantuan Teknis - Solusi masalah teknis\n- ⚡ Info Cepat - Fakta dan informasi singkat", "bot");
   </script>
-   </body>
-   </html>
-
+</body>
+</html>
