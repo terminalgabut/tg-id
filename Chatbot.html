@@ -1,159 +1,171 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🤖Hmmz Chatbot</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: "Helvetica Neue", Arial, sans-serif;
-            background-color: #e5ddd5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .chat-container {
-            width: 400px;
-            height: 600px;
-            background-color: #fff;
-            border-radius: 15px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-        /* HEADER FIXED */
-        .header-container {
-            background-color: #00c300;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        .header-container h1 {
-            margin: 0;
-            font-size: 20px;
-        }
-        .header-container p {
-            margin: 3px 0 0 0;
-            font-size: 12px;
-            opacity: 0.9;
-        }
-        .messages {
-            flex: 1;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            gap: 10px;
-        }
-        .message {
-            max-width: 70%;
-            padding: 10px 15px;
-            border-radius: 20px;
-            word-wrap: break-word;
-        }
-        .user {
-            align-self: flex-end;
-            background-color: #00c300;
-            color: #fff;
-            border-bottom-right-radius: 5px;
-        }
-        .bot {
-            align-self: flex-start;
-            background-color: #f1f0f0;
-            color: #000;
-            border-bottom-left-radius: 5px;
-        }
-        .input-container {
-            display: flex;
-            padding: 10px;
-            background-color: #f0f0f0;
-        }
-        input {
-            flex: 1;
-            padding: 10px 15px;
-            border-radius: 25px;
-            border: 1px solid #ccc;
-            outline: none;
-        }
-        button {
-            margin-left: 10px;
-            padding: 10px 20px;
-            border-radius: 25px;
-            border: none;
-            background-color: #00c300;
-            color: #fff;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        button:hover {
-            background-color: #00a000;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🤖 Hmmz Chatbot</title>
+
+  <!-- LIBRARY MARKDOWN -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background-color: #e5ddd5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .chat-container {
+      width: 400px;
+      height: 600px;
+      background-color: #fff;
+      border-radius: 15px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    /* HEADER FIXED */
+    .header-container {
+      background-color: #00c300;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-container h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+    .header-container p {
+      margin: 3px 0 0 0;
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    .messages {
+      flex: 1;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      gap: 10px;
+    }
+    .message {
+      max-width: 85%;
+      padding: 10px 15px;
+      border-radius: 12px;
+      word-wrap: break-word;
+      line-height: 1.4;
+    }
+    .user {
+      align-self: flex-end;
+      background-color: #00c300;
+      color: #fff;
+      border-bottom-right-radius: 5px;
+      text-align: right;
+    }
+    .bot {
+      align-self: flex-start;
+      background-color: #f1f0f0;
+      color: #000;
+      border-bottom-left-radius: 5px;
+    }
+    .input-container {
+      display: flex;
+      padding: 10px;
+      background-color: #f0f0f0;
+    }
+    input {
+      flex: 1;
+      padding: 10px 15px;
+      border-radius: 25px;
+      border: 1px solid #ccc;
+      outline: none;
+    }
+    button {
+      margin-left: 10px;
+      padding: 10px 20px;
+      border-radius: 25px;
+      border: none;
+      background-color: #00c300;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #00a000;
+    }
+  </style>
 </head>
 <body>
-    <div class="chat-container">
-        <!-- HEADER FIXED -->
-        <div class="header-container">
-            <h1>🤖 Hmmz Bot</h1>
-            <p>Serba siap membantu anda</p>
-        </div>
-
-        <!-- PESAN CHAT -->
-        <div class="messages" id="messages"></div>
-
-        <!-- INPUT -->
-        <div class="input-container">
-            <input type="text" id="userInput" placeholder="Tulis pesan..." />
-            <button onclick="sendMessage()">Kirim</button>
-        </div>
+  <div class="chat-container">
+    <!-- HEADER -->
+    <div class="header-container">
+      <h1>🤖 Hmmz Bot</h1>
+      <p>Serba siap membantu anda</p>
     </div>
 
-    <script>
-        const apiUrl = 'https://2aa809b4-4845-4024-a0db-62fb8df3f7bb-00-1uf4phwu2ppzh.riker.replit.dev/chat';
+    <!-- CHAT MESSAGES -->
+    <div class="messages" id="messages"></div>
 
-        function appendMessage(text, sender) {
-            const messagesDiv = document.getElementById('messages');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'message ' + sender;
-            msgDiv.textContent = text;
-            messagesDiv.appendChild(msgDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
+    <!-- INPUT -->
+    <div class="input-container">
+      <input type="text" id="userInput" placeholder="Tulis pesan..." />
+      <button onclick="sendMessage()">Kirim</button>
+    </div>
+  </div>
 
-        async function sendMessage() {
-            const input = document.getElementById('userInput');
-            const message = input.value.trim();
-            if (!message) return;
+  <script>
+    const apiUrl = 'https://2aa809b4-4845-4024-a0db-62fb8df3f7bb-00-1uf4phwu2ppzh.riker.replit.dev/chat';
 
-            appendMessage(message, 'user');
-            input.value = '';
+    function appendMessage(text, sender) {
+      const messagesDiv = document.getElementById('messages');
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message ' + sender;
 
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message })
-                });
+      // parse markdown agar bold, list, emoji dll terbaca
+      msgDiv.innerHTML = marked.parse(text);
 
-                if (!response.ok) throw new Error('Server error');
-                const data = await response.json();
-                appendMessage(data.reply, 'bot');
+      messagesDiv.appendChild(msgDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
 
-            } catch (error) {
-                appendMessage('Terjadi error: ' + error.message, 'bot');
-            }
-        }
+    async function sendMessage() {
+      const input = document.getElementById('userInput');
+      const message = input.value.trim();
+      if (!message) return;
 
-        document.getElementById('userInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') sendMessage();
+      appendMessage(message, 'user');
+      input.value = '';
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
         });
-    </script>
+
+        if (!response.ok) throw new Error('Server error');
+        const data = await response.json();
+        appendMessage(data.reply, 'bot');
+
+      } catch (error) {
+        appendMessage('❌ Terjadi error: ' + error.message, 'bot');
+      }
+    }
+
+    document.getElementById('userInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // Pesan awal contoh
+    appendMessage("**Hmmz Bot**: Halo! Saya Hmmz Bot, asisten pribadi Anda. 😊\n\n**Menu pilihan:**\n- 📚 Belajar - Penjelasan topik apa saja\n- 🎉 Hiburan - Lelucon, cerita, atau games\n- 💡 Ide Kreatif - Brainstorming dan inspirasi\n- 🔧 Bantuan Teknis - Solusi masalah teknis\n- ⚡ Info Cepat - Fakta dan informasi singkat", "bot");
+  </script>
 </body>
 </html>
