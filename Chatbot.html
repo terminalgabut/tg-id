@@ -104,7 +104,7 @@
 
       try {
         // Panggil API Replit kamu (pastikan backend menerima format ini)
-        let res = await fetch("https://2aa809b4-4845-4024-a0db-62fb8df3f7bb-00-1uf4phwu2ppzh.riker.replit.dev/", {
+        let res = await fetch("https://2aa809b4-4845-4024-a0db-62fb8df3f7bb-00-1uf4phwu2ppzh.riker.replit.dev/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: input.value })
