@@ -3,196 +3,167 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🤖 Hmmz Chatbot</title>
-
-  <!-- LIBRARY MARKDOWN -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
+  <title>Hmmz Bot</title>
   <style>
     body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
       margin: 0;
       padding: 0;
-      font-family: "Helvetica Neue", Arial, sans-serif;
-      background-color: #e5ddd5;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
     }
+
     .chat-container {
-      width: 92%;
-      height: 85vh;
-      max-width: 100vh;
-      background-color: #fff;
-      border-radius: 15px;
+      width: 100%;
+      max-width: 420px;
+      height: 90vh;
+      background: #fff;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
       overflow: hidden;
     }
-    /* HEADER FIXED */
-    .header-container {
-      background-color: #075E54;
+
+    .chat-header {
+      background: #075E54;
       color: white;
-      padding: 15px;
+      padding: 12px;
       text-align: center;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      border-bottom: 3px solid #e5ddd5;
-      margin-bottom: 7px;
+      font-weight: bold;
     }
-    .header-container h1 {
-      margin: 0;
-      font-size: 20px;
-    }
-    .header-container p {
-      margin: 3px 0 0 0;
-      font-size: 12px;
-      opacity: 0.9;
-    }
-    .messages {
+
+    .chat-body {
       flex: 1;
-      padding: 15px;
+      padding: 10px;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
-      gap: 10px;
+      gap: 8px;
     }
+
     .message {
       max-width: 75%;
-      padding: 6px 10px 14px 10px; /* bawah lebih lega utk jam */
-      border-radius: 7.5px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      position: relative;
       font-size: 14px;
       line-height: 1.4;
       word-wrap: break-word;
-      position: relative;  /* supaya timestamp bisa absolute */
     }
 
-    /* Bubble user (kanan - hijau muda WA) */
-    .user {
+    .message.user {
+      background: #dcf8c6;
       align-self: flex-end;
-      background-color: #dcf8c6;
-      color: #000;
-      border-bottom-right-radius: 0;
+      border-bottom-right-radius: 2px;
     }
 
-    /* Bubble bot (kiri - putih WA) */
-    .bot {
+    .message.bot {
+      background: #fff;
       align-self: flex-start;
-      background-color: #fff;
-      color: #000;
-      border-bottom-left-radius: 0;
-      border: 1px solid #eee;
+      border-bottom-left-radius: 2px;
+      border: 1px solid #ddd;
     }
 
-    /* Timestamp */
-    .timestamp {
+    .time {
       font-size: 11px;
       color: gray;
       position: absolute;
       bottom: 2px;
-      right: 8px;
+      right: 6px;
     }
 
-    .input-container {
+    .chat-footer {
       display: flex;
-      padding: 10px;
-      background-color: #f0f0f0;
+      padding: 8px;
+      background: #f0f2f5;
+      gap: 6px;
     }
-    input {
+
+    .chat-footer input {
       flex: 1;
-      padding: 10px 15px;
-      border-radius: 25px;
+      padding: 10px;
+      border-radius: 20px;
       border: 1px solid #ccc;
-      outline: none;
+      font-size: 14px;
     }
-    button {
-      margin-left: 10px;
-      padding: 10px 20px;
-      border-radius: 25px;
+
+    .chat-footer button {
+      background: #25d366;
+      color: white;
       border: none;
-      background-color: #25D366; /* warna WA */
-      color: #fff;
+      border-radius: 20px;
+      padding: 0 16px;
+      font-size: 14px;
       cursor: pointer;
-      font-weight: bold;
     }
-    button:hover {
-      background-color: #20b85c;
+
+    .chat-footer button:hover {
+      background: #20b857;
     }
   </style>
 </head>
 <body>
   <div class="chat-container">
-    <!-- HEADER -->
-    <div class="header-container">
-      <h1>🤖 Hmmz Bot</h1>
-      <p>Serba siap membantu anda</p>
-    </div>
-
-    <!-- CHAT MESSAGES -->
-    <div class="messages" id="messages"></div>
-
-    <!-- INPUT -->
-    <div class="input-container">
-      <input type="text" id="userInput" placeholder="Tulis pesan..." />
-      <button onclick="sendMessage()">Kirim</button>
+    <div class="chat-header">🤖 Hmmz Bot</div>
+    <div class="chat-body" id="chat-body"></div>
+    <div class="chat-footer">
+      <input type="text" id="user-input" placeholder="Tulis pesan...">
+      <button id="send-btn">Kirim</button>
     </div>
   </div>
 
   <script>
-    const apiUrl = 'https://2aa809b4-4845-4024-a0db-62fb8df3f7bb-00-1uf4phwu2ppzh.riker.replit.dev/chat';
+    const chatBody = document.getElementById("chat-body");
+    const input = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
 
     function appendMessage(text, sender) {
-      const messagesDiv = document.getElementById('messages');
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'message ' + sender;
+      const msgDiv = document.createElement("div");
+      msgDiv.classList.add("message", sender);
+      msgDiv.innerHTML = text;
 
-      // parse markdown agar bold, list, emoji dll terbaca
-      msgDiv.innerHTML = marked.parse(text);
-
-      // Tambah timestamp
-      const timeSpan = document.createElement('span');
-      timeSpan.className = 'timestamp';
+      // Waktu
+      const time = document.createElement("span");
+      time.classList.add("time");
       const now = new Date();
-      timeSpan.textContent = now.getHours().toString().padStart(2,'0') + ":" +
-                             now.getMinutes().toString().padStart(2,'0');
-      msgDiv.appendChild(timeSpan);
+      time.textContent = now.getHours().toString().padStart(2,"0") + ":" + now.getMinutes().toString().padStart(2,"0");
+      msgDiv.appendChild(time);
 
-      messagesDiv.appendChild(msgDiv);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      chatBody.appendChild(msgDiv);
+      chatBody.scrollTop = chatBody.scrollHeight;
     }
 
-    async function sendMessage() {
-      const input = document.getElementById('userInput');
-      const message = input.value.trim();
-      if (!message) return;
+    function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+      appendMessage(text, "user");
+      input.value = "";
 
-      appendMessage(message, 'user');
-      input.value = '';
-
-      try {
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message })
-        });
-
-        if (!response.ok) throw new Error('Server error');
-        const data = await response.json();
-        appendMessage(data.reply, 'bot');
-
-      } catch (error) {
-        appendMessage('❌ Terjadi error: ' + error.message, 'bot');
-      }
+      // Simulasi balasan bot
+      setTimeout(() => {
+        appendMessage("Balasan untuk: " + text, "bot");
+      }, 800);
     }
 
-    document.getElementById('userInput').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') sendMessage();
+    sendBtn.addEventListener("click", sendMessage);
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendMessage();
     });
 
-    // Pesan awal contoh
-    appendMessage("Halo! Saya Hmmz Bot, asisten pribadi Anda. 😊\n\n**Menu pilihan:**\n- 📚 Belajar - Penjelasan topik apa saja\n- 🎉 Hiburan - Lelucon, cerita, atau games\n- 💡 Ide Kreatif - Brainstorming dan inspirasi\n- 🔧 Bantuan Teknis - Solusi masalah teknis\n- ⚡ Info Cepat - Fakta dan informasi singkat", "bot");
+    // Pesan awal bot
+    appendMessage(
+      "Halo! Saya Hmmz Bot, siap membantu Anda. 😊<br><br>" +
+      "📚 <b>Belajar</b><br>" +
+      "🎉 <b>Hiburan</b><br>" +
+      "💡 <b>Ide Kreatif</b><br>" +
+      "🔧 <b>Bantuan Teknis</b><br>" +
+      "⚡ <b>Info Cepat</b>",
+      "bot"
+    );
   </script>
 </body>
 </html>
