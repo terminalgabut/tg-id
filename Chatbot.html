@@ -60,39 +60,37 @@
       gap: 10px;
     }
     .message {
-      max-width: 75%;
-      padding: 6px 10px 14px 10px; /* bawah lebih lega utk jam */
-      border-radius: 7.5px;
-      font-size: 14px;
-      line-height: 1.4;
-      word-wrap: break-word;
-      position: relative;  /* supaya timestamp bisa absolute */
+  max-width: 75%;
+  padding: 6px 7px 16px 7px; /* lebih rapat kiri/kanan */
+  border-radius: 7.5px;
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  position: relative; /* buat timestamp absolute */
+  display: inline-block; /* supaya bubble ngepas sama teks */
     }
 
-    /* Bubble user (kanan - hijau muda WA) */
     .user {
-      align-self: flex-end;
-      background-color: #dcf8c6;
-      color: #000;
-      border-bottom-right-radius: 0;
+  align-self: flex-end;
+  background-color: #dcf8c6;
+  color: #000;
+  border-bottom-right-radius: 0;
     }
 
-    /* Bubble bot (kiri - putih WA) */
-    .bot {
-      align-self: flex-start;
-      background-color: #fff;
-      color: #000;
-      border-bottom-left-radius: 0;
-      border: 1px solid #eee;
-    }
+.bot {
+  align-self: flex-start;
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #eee;
+  border-bottom-left-radius: 0;
+   }
 
-    /* Timestamp */
-    .timestamp {
-      font-size: 11px;
-      color: gray;
-      position: absolute;
-      bottom: 2px;
-      right: 8px;
+  .timestamp {
+    font-size: 11px;
+    color: gray;
+    position: absolute;
+    bottom: 2px;
+    right: 6px;  /* lebih dekat ke teks */
     }
 
     .input-container {
