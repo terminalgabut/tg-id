@@ -30,6 +30,7 @@
       box-shadow: 0 5px 15px rgba(0,0,0,0.2);
       overflow: hidden;
     }
+
     /* HEADER FIXED */
     .header-container {
       background-color: #075E54;
@@ -40,7 +41,6 @@
       top: 0;
       z-index: 10;
       border-bottom: 3px solid #e5ddd5;
-      margin-bottom: 7px;
     }
     .header-container h1 {
       margin: 0;
@@ -51,47 +51,49 @@
       font-size: 12px;
       opacity: 0.9;
     }
+
     .messages {
       flex: 1;
-      padding: 15px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
       overflow-y: auto;
-      gap: 10px;
+      gap: 8px;
     }
+
     .message {
-  max-width: 75%;
-  padding: 6px 7px 16px 7px; /* lebih rapat kiri/kanan */
-  border-radius: 7.5px;
-  font-size: 14px;
-  line-height: 1.4;
-  word-wrap: break-word;
-  position: relative; /* buat timestamp absolute */
-  display: inline-block; /* supaya bubble ngepas sama teks */
-}
+      max-width: 75%;
+      padding: 6px 8px 18px 8px; /* lebih rapat kiri/kanan */
+      border-radius: 7.5px;
+      font-size: 14px;
+      line-height: 1.3;
+      word-wrap: break-word;
+      position: relative; /* buat timestamp absolute */
+      display: inline-block; /* supaya bubble ngepas sama teks */
+    }
 
-.user {
-  align-self: flex-end;
-  background-color: #dcf8c6;
-  color: #000;
-  border-bottom-right-radius: 0;
-}
+    .user {
+      align-self: flex-end;
+      background-color: #dcf8c6;
+      color: #000;
+      border-bottom-right-radius: 0;
+    }
 
-.bot {
-  align-self: flex-start;
-  background-color: #fff;
-  color: #000;
-  border: 1px solid #eee;
-  border-bottom-left-radius: 0;
-}
+    .bot {
+      align-self: flex-start;
+      background-color: #fff;
+      color: #000;
+      border: 1px solid #eee;
+      border-bottom-left-radius: 0;
+    }
 
-.timestamp {
-  font-size: 11px;
-  color: gray;
-  position: absolute;
-  bottom: 2px;
-  right: 6px;  /* lebih dekat ke teks */
-}
+    .timestamp {
+      font-size: 11px;
+      color: gray;
+      position: absolute;
+      bottom: 2px;
+      right: 6px;  /* dekat ke teks */
+    }
 
     .input-container {
       display: flex;
@@ -190,7 +192,7 @@
     });
 
     // Pesan awal contoh
-    appendMessage("**Hmmz Bot**: Halo! Saya Hmmz Bot, asisten pribadi Anda. 😊\n\n**Menu pilihan:**\n- 📚 Belajar - Penjelasan topik apa saja\n- 🎉 Hiburan - Lelucon, cerita, atau games\n- 💡 Ide Kreatif - Brainstorming dan inspirasi\n- 🔧 Bantuan Teknis - Solusi masalah teknis\n- ⚡ Info Cepat - Fakta dan informasi singkat", "bot");
+    appendMessage("Halo! Saya Hmmz Bot, asisten pribadi Anda. 😊\n\n**Menu pilihan:**\n- 📚 Belajar - Penjelasan topik apa saja\n- 🎉 Hiburan - Lelucon, cerita, atau games\n- 💡 Ide Kreatif - Brainstorming dan inspirasi\n- 🔧 Bantuan Teknis - Solusi masalah teknis\n- ⚡ Info Cepat - Fakta dan informasi singkat", "bot");
   </script>
 </body>
 </html>
