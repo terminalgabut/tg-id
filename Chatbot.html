@@ -25,6 +25,25 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             overflow: hidden;
         }
+        /* HEADER FIXED */
+        .header-container {
+            background-color: #00c300;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header-container h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+        .header-container p {
+            margin: 3px 0 0 0;
+            font-size: 12px;
+            opacity: 0.9;
+        }
         .messages {
             flex: 1;
             padding: 15px;
@@ -80,7 +99,16 @@
 </head>
 <body>
     <div class="chat-container">
+        <!-- HEADER FIXED -->
+        <div class="header-container">
+            <h1>🤖 Hmmz Bot</h1>
+            <p>Serba siap membantu anda</p>
+        </div>
+
+        <!-- PESAN CHAT -->
         <div class="messages" id="messages"></div>
+
+        <!-- INPUT -->
         <div class="input-container">
             <input type="text" id="userInput" placeholder="Tulis pesan..." />
             <button onclick="sendMessage()">Kirim</button>
