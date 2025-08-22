@@ -1,6 +1,4 @@
 
-<html lang="id">
-<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🤖 Hmmz Chatbot</title>
@@ -30,8 +28,6 @@
       box-shadow: 0 5px 15px rgba(0,0,0,0.2);
       overflow: hidden;
     }
-
-    /* HEADER FIXED */
     .header-container {
       background-color: #075E54;
       color: white;
@@ -51,7 +47,6 @@
       font-size: 12px;
       opacity: 0.9;
     }
-
     .messages {
       flex: 1;
       padding: 10px;
@@ -60,8 +55,6 @@
       overflow-y: auto;
       gap: 8px;
     }
-
-    /* BUBBLE CHAT USER */
     .message.user {
       max-width: 75%;
       padding: 6px 8px 18px 8px;
@@ -76,8 +69,6 @@
       position: relative;
       display: inline-block;
     }
-
-    /* BOT hanya teks biasa */
     .message.bot {
       align-self: flex-start;
       background: none;
@@ -87,8 +78,6 @@
       font-size: 14px;
       line-height: 1.4;
     }
-
-    /* Timestamp khusus USER */
     .timestamp {
       font-size: 11px;
       color: gray;
@@ -96,7 +85,6 @@
       bottom: 2px;
       right: 6px;
     }
-
     .input-container {
       display: flex;
       padding: 10px;
@@ -114,7 +102,7 @@
       padding: 10px 20px;
       border-radius: 25px;
       border: none;
-      background-color: #25D366; /* warna WA */
+      background-color: #25D366;
       color: #fff;
       cursor: pointer;
       font-weight: bold;
@@ -126,16 +114,13 @@
 </head>
 <body>
   <div class="chat-container">
-    <!-- HEADER -->
     <div class="header-container">
       <h1>🤖 Hmmz Bot</h1>
       <p>Serba siap membantu anda</p>
     </div>
 
-    <!-- CHAT MESSAGES -->
     <div class="messages" id="messages"></div>
 
-    <!-- INPUT -->
     <div class="input-container">
       <input type="text" id="userInput" placeholder="Tulis pesan..." />
       <button onclick="sendMessage()">Kirim</button>
@@ -143,60 +128,121 @@
   </div>
 
   <script>
-    const apiUrl = 'https://2aa809b4-4845-4024-a0db-62fb8df3f7bb-00-1uf4phwu2ppzh.riker.replit.dev/chat';
+    const API_URL = "https://openrouter.ai/api/v1/chat/completions";
+    const API_KEY = "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"; // transparan
 
-    function appendMessage(text, sender) {
-      const messagesDiv = document.getElementById('messages');
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'message ' + sender;
+  let history = [];
+  const maxHistoryPairs = 5;
 
-      // parse markdown untuk bot, tapi user teks biasa
-      msgDiv.innerHTML = sender === "bot" ? marked.parse(text) : text;
+  let thinkingMsg = null;
+  let thinkingInterval = null;
 
-      if (sender === "user") {
-        // Tambah timestamp ke dalam bubble user
-        const timeSpan = document.createElement('span');
-        timeSpan.className = 'timestamp';
-        const now = new Date();
-        timeSpan.textContent = now.getHours().toString().padStart(2,'0') + ":" +
-                               now.getMinutes().toString().padStart(2,'0');
-        msgDiv.appendChild(timeSpan);
-      }
+  function appendMessage(text, sender) {
+    const messagesDiv = document.getElementById('messages');
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'message ' + sender;
 
-      messagesDiv.appendChild(msgDiv);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    if (sender === "bot") {
+      // render markdown
+      msgDiv.innerHTML = marked.parse(text);
+    } else {
+      msgDiv.textContent = text;
+      const timeSpan = document.createElement('span');
+      timeSpan.className = 'timestamp';
+      const now = new Date();
+      timeSpan.textContent =
+        now.getHours().toString().padStart(2, '0') + ":" +
+        now.getMinutes().toString().padStart(2, '0');
+      msgDiv.appendChild(timeSpan);
     }
 
-    async function sendMessage() {
-      const input = document.getElementById('userInput');
-      const message = input.value.trim();
-      if (!message) return;
+    messagesDiv.appendChild(msgDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    return msgDiv;
+  }
 
-      appendMessage(message, 'user');
-      input.value = '';
+  function showThinking() {
+    thinkingMsg = appendMessage("⏳ sabar... bot lagi mikir", "bot");
+    let dots = 0;
+    thinkingInterval = setInterval(() => {
+      dots = (dots + 1) % 4;
+      if (thinkingMsg) thinkingMsg.textContent = "⏳ sabar... bot lagi mikir" + ".".repeat(dots);
+    }, 500);
+  }
 
-      try {
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message })
-        });
+  function hideThinking() {
+    if (thinkingInterval) clearInterval(thinkingInterval);
+    if (thinkingMsg && thinkingMsg.parentNode) {
+      thinkingMsg.parentNode.removeChild(thinkingMsg);
+    }
+    thinkingMsg = null;
+  }
 
-        if (!response.ok) throw new Error('Server error');
-        const data = await response.json();
-        appendMessage(data.reply, 'bot');
+  async function sendMessage() {
+    const input = document.getElementById('userInput');
+    const message = input.value.trim();
+    if (!message) return;
 
-      } catch (error) {
-        appendMessage('❌ Terjadi error: ' + error.message, 'bot');
-      }
+    appendMessage(message, "user");
+    input.value = "";
+
+    history.push({ role: "user", content: message });
+    if (history.length > maxHistoryPairs * 2) {
+      history = history.slice(-maxHistoryPairs * 2);
     }
 
-    document.getElementById('userInput').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') sendMessage();
-    });
+    showThinking();
 
-    // Pesan awal
-    appendMessage("Halo! Saya Hmmz Bot, asisten pribadi Anda. 😊\n\n**Menu pilihan:**\n- 📚 Belajar - Penjelasan topik apa saja\n- 🎉 Hiburan - Lelucon, cerita, atau games\n- 💡 Ide Kreatif - Brainstorming dan inspirasi\n- 🔧 Bantuan Teknis - Solusi masalah teknis\n- ⚡ Info Cepat - Fakta dan informasi singkat", "bot");
-  </script>
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "openai/gpt-oss-20b",
+          messages: [
+            {
+              role: "system",
+              content: "Kamu adalah Hmmz Bot, asisten serba bisa yang siap membantu. Gaya komunikasi: singkat, jelas, tanpa basa-basi. Jika user bingung, tawarkan menu pilihan (Belajar, Hiburan, Ide Kreatif, Bantuan Teknis, Info Cepat). Jika user bertanya siapa pembuatmu, jawab: Pembuat saya adalah Hmmz00."
+            },
+            ...history
+          ]
+        })
+      });
+
+      if (res.status === 401) throw new Error("401 Unauthorized (cek API key)");
+      if (!res.ok) throw new Error(`Server error (${res.status})`);
+
+      const data = await res.json();
+
+      hideThinking();
+
+      const reply = data.choices?.[0]?.message?.content || "❌ Tidak ada balasan dari server.";
+      appendMessage(reply, "bot");
+
+      history.push({ role: "assistant", content: reply });
+      if (history.length > maxHistoryPairs * 2) {
+        history = history.slice(-maxHistoryPairs * 2);
+      }
+
+    } catch (err) {
+      hideThinking();
+      console.error(err);
+      appendMessage("❌ Terjadi error: " + err.message, "bot");
+    }
+  }
+
+  document.getElementById("userInput").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") sendMessage();
+  });
+
+  // Pesan awal
+  appendMessage(
+    "Halo! Saya Hmmz Bot, asisten pribadi Anda. 😊\n\n**Menu pilihan:**\n- 📚 Belajar\n- 🎉 Hiburan\n- 💡 Ide Kreatif\n- 🔧 Bantuan Teknis\n- ⚡ Info Cepat",
+    "bot"
+  );
+</script>
 </body>
 </html>
