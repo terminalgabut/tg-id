@@ -143,9 +143,12 @@
     const messagesDiv = document.getElementById('messages');
     const msgDiv = document.createElement('div');
     msgDiv.className = 'message ' + sender;
-    msgDiv.innerHTML = sender === "bot" ? marked.parse(text) : text;
 
-    if (sender === "user") {
+    if (sender === "bot") {
+      // render markdown
+      msgDiv.innerHTML = marked.parse(text);
+    } else {
+      msgDiv.textContent = text;
       const timeSpan = document.createElement('span');
       timeSpan.className = 'timestamp';
       const now = new Date();
@@ -165,7 +168,7 @@
     let dots = 0;
     thinkingInterval = setInterval(() => {
       dots = (dots + 1) % 4;
-      if (thinkingMsg) thinkingMsg.innerHTML = "⏳ sabar... bot lagi mikir" + ".".repeat(dots);
+      if (thinkingMsg) thinkingMsg.textContent = "⏳ sabar... bot lagi mikir" + ".".repeat(dots);
     }, 500);
   }
 
@@ -202,13 +205,18 @@
         body: JSON.stringify({
           model: "openai/gpt-oss-20b",
           messages: [
-            { role: "system", content: "Kamu adalah Hmmz Bot, asisten serba bisa yang siap membantu. Gaya komunikasi: singkat, jelas, tanpa basa-basi. Jika user tampak bingung, tawarkan menu pilihan aktivitas menarik (Belajar, Hiburan, Ide Kreatif, Bantuan Teknis, Info Cepat). Jika user bertanya siapa pembuatmu, jawab: Pembuat saya adalah Hmmz00." },
+            {
+              role: "system",
+              content: "Kamu adalah Hmmz Bot, asisten serba bisa yang siap membantu. Gaya komunikasi: singkat, jelas, tanpa basa-basi. Jika user bingung, tawarkan menu pilihan (Belajar, Hiburan, Ide Kreatif, Bantuan Teknis, Info Cepat). Jika user bertanya siapa pembuatmu, jawab: Pembuat saya adalah Hmmz00."
+            },
             ...history
           ]
         })
       });
 
+      if (res.status === 401) throw new Error("401 Unauthorized (cek API key)");
       if (!res.ok) throw new Error(`Server error (${res.status})`);
+
       const data = await res.json();
 
       hideThinking();
