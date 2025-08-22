@@ -1,42 +1,198 @@
-<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Puisi / Puisi</title>
+  <title>🤖 Hmmz Chatbot</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f0f0f0;
-      padding: 50px;
-      text-align: center;
+      margin: 0;
+      padding: 0;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background-color: #e5ddd5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
-    h1 {
-      color: #2c3e50;
+    .chat-container {
+      width: 92%;
+      height: 85vh;
+      max-width: 100vh;
+      background-color: #fff;
+      border-radius: 15px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      overflow: hidden;
     }
-    p {
-      color: #555;
-      font-size: 16px;
-      max-width: 600px;
-      margin: 20px auto;
-    }
-    a.btn {
-      display: inline-block;
-      background: #3498db;
+
+    /* HEADER FIXED */
+    .header-container {
+      background-color: #075E54;
       color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      text-decoration: none;
-      margin-top: 20px;
+      padding: 15px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 3px solid #e5ddd5;
     }
-    a.btn:hover {
-      background: #2980b9;
+    .header-container h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+    .header-container p {
+      margin: 3px 0 0 0;
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .messages {
+      flex: 1;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      gap: 8px;
+    }
+
+    /* BUBBLE CHAT USER */
+    .message.user {
+      max-width: 75%;
+      padding: 6px 8px 18px 8px;
+      border-radius: 7.5px;
+      font-size: 14px;
+      line-height: 1.3;
+      word-wrap: break-word;
+      align-self: flex-end;
+      background-color: #dcf8c6;
+      color: #000;
+      border-bottom-right-radius: 0;
+      position: relative;
+      display: inline-block;
+    }
+
+    /* BOT hanya teks biasa */
+    .message.bot {
+      align-self: flex-start;
+      background: none;
+      border: none;
+      padding: 0;
+      max-width: 90%;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    /* Timestamp khusus USER */
+    .timestamp {
+      font-size: 11px;
+      color: gray;
+      position: absolute;
+      bottom: 2px;
+      right: 6px;
+    }
+
+    .input-container {
+      display: flex;
+      padding: 10px;
+      background-color: #f0f0f0;
+    }
+    input {
+      flex: 1;
+      padding: 10px 15px;
+      border-radius: 25px;
+      border: 1px solid #ccc;
+      outline: none;
+    }
+    button {
+      margin-left: 10px;
+      padding: 10px 20px;
+      border-radius: 25px;
+      border: none;
+      background-color: #25D366; /* warna WA */
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #20b85c;
     }
   </style>
 </head>
 <body>
-  <h1>Puisi / Puisi</h1>
-  <p>Halo! Ini adalah halaman update saya. Saya sedang belajar membuat website GitHub Pages dan menambahkan halaman baru untuk informasi tambahan 🚀</p>
-  <a href="index.html" class="btn">Kembali ke Homepage</a>
+  <div class="chat-container">
+    <div class="header-container">
+      <h1>🤖 Hmmz Bot</h1>
+      <p>Bot sarungan serba siap membantu anda</p>
+    </div>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="input-container">
+      <input type="text" id="userInput" placeholder="Tulis pesan..." />
+      <button onclick="sendMessage()">Kirim</button>
+    </div>
+  </div>
+
+  <script>
+    // URL API yang sudah diperbarui ke Vercel
+    const apiUrl = 'https://hmmz-bot01.vercel.app/chat'; 
+
+    function appendMessage(text, sender) {
+      const messagesDiv = document.getElementById('messages');
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message ' + sender;
+
+      // parse markdown untuk bot, tapi user teks biasa
+      msgDiv.innerHTML = sender === "bot" ? marked.parse(text) : text;
+
+      if (sender === "user") {
+        // Tambah timestamp ke dalam bubble user
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'timestamp';
+        const now = new Date();
+        timeSpan.textContent = now.getHours().toString().padStart(2,'0') + ":" +
+                               now.getMinutes().toString().padStart(2,'0');
+        msgDiv.appendChild(timeSpan);
+      }
+
+      messagesDiv.appendChild(msgDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('userInput');
+      const message = input.value.trim();
+      if (!message) return;
+
+      appendMessage(message, 'user');
+      input.value = '';
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+
+        if (!response.ok) throw new Error('Server error');
+        const data = await response.json();
+        appendMessage(data.reply, 'bot');
+
+      } catch (error) {
+        appendMessage('❌ Terjadi error: ' + error.message, 'bot');
+      }
+    }
+
+    document.getElementById('userInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // Pesan awal
+    appendMessage("Assalamualaikum...<p>Saya Hmmz Bot, asisten pribadi Anda. 😊\n\n**Menu pilihan:**</p><ul><li> 🌕 Religius - Iman dan Ibadah</li><li> 📚 Belajar - Penjelasan topik apa saja</li><li> 🎉 Hiburan - Lelucon, cerita, atau games</li><li> 💡 Ide Kreatif - Brainstorming dan inspirasi</li><li> 🔧 Bantuan Teknis - Solusi masalah teknis</li><li> ⚡ Info Cepat - Fakta dan informasi singkat</li></ul>", "bot");
+  </script>
 </body>
 </html>
