@@ -132,13 +132,10 @@
   <script>
     const API_URL = "https://openrouter.ai/api/v1/chat/completions";
     const API_KEY = "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"; // transparan
-    const SYSTEM_PROMPT = {
-      role: "system",
-      content: "Kamu adalah Hmmz Bot, asisten serba bisa yang siap membantu. Gaya komunikasi: singkat, jelas, tanpa basa-basi. Jawab hanya poin penting, tidak bertele-tele. Jika user tampak bingung, tawarkan menu pilihan aktivitas menarik (contoh: Belajar, Hiburan, Ide Kreatif, Bantuan Teknis, Info Cepat). Selalu fleksibel dan siap lakukan apa saja sesuai permintaan user. Jika user meminta tentang pembuat, jawab: Pembuat saya adalah Hmmz00."
-    };
 
-  let history = []; // simpan riwayat percakapan
-  const maxHistory = 5;
+  let history = [];
+  const maxHistoryPairs = 5;
+
   let thinkingMsg = null;
   let thinkingInterval = null;
 
@@ -146,15 +143,15 @@
     const messagesDiv = document.getElementById('messages');
     const msgDiv = document.createElement('div');
     msgDiv.className = 'message ' + sender;
-
     msgDiv.innerHTML = sender === "bot" ? marked.parse(text) : text;
 
     if (sender === "user") {
       const timeSpan = document.createElement('span');
       timeSpan.className = 'timestamp';
       const now = new Date();
-      timeSpan.textContent = now.getHours().toString().padStart(2,'0') + ":" +
-                             now.getMinutes().toString().padStart(2,'0');
+      timeSpan.textContent =
+        now.getHours().toString().padStart(2, '0') + ":" +
+        now.getMinutes().toString().padStart(2, '0');
       msgDiv.appendChild(timeSpan);
     }
 
@@ -167,8 +164,8 @@
     thinkingMsg = appendMessage("⏳ sabar... bot lagi mikir", "bot");
     let dots = 0;
     thinkingInterval = setInterval(() => {
-      dots = (dots + 1) % 4; // 0..3
-      thinkingMsg.innerHTML = "⏳ sabar... bot lagi mikir" + ".".repeat(dots);
+      dots = (dots + 1) % 4;
+      if (thinkingMsg) thinkingMsg.innerHTML = "⏳ sabar... bot lagi mikir" + ".".repeat(dots);
     }, 500);
   }
 
@@ -185,42 +182,59 @@
     const message = input.value.trim();
     if (!message) return;
 
-    appendMessage(message, 'user');
-    input.value = '';
+    appendMessage(message, "user");
+    input.value = "";
 
-    // Simpan riwayat (user)
     history.push({ role: "user", content: message });
-    if (history.length > maxHistory * 2) history = history.slice(-maxHistory * 2);
+    if (history.length > maxHistoryPairs * 2) {
+      history = history.slice(-maxHistoryPairs * 2);
+    }
 
-    // Tampilkan indikator bot mikir
     showThinking();
 
     try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: message, history: history })
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "openai/gpt-oss-20b",
+          messages: [
+            { role: "system", content: "Kamu adalah Hmmz Bot, asisten serba bisa yang siap membantu. Gaya komunikasi: singkat, jelas, tanpa basa-basi. Jika user tampak bingung, tawarkan menu pilihan aktivitas menarik (Belajar, Hiburan, Ide Kreatif, Bantuan Teknis, Info Cepat). Jika user bertanya siapa pembuatmu, jawab: Pembuat saya adalah Hmmz00." },
+            ...history
+          ]
+        })
       });
 
-      if (!response.ok) throw new Error('Server error');
-      const data = await response.json();
+      if (!res.ok) throw new Error(`Server error (${res.status})`);
+      const data = await res.json();
 
       hideThinking();
-      appendMessage(data.reply, 'bot');
-      history.push({ role: "bot", content: data.reply });
 
-    } catch (error) {
+      const reply = data.choices?.[0]?.message?.content || "❌ Tidak ada balasan dari server.";
+      appendMessage(reply, "bot");
+
+      history.push({ role: "assistant", content: reply });
+      if (history.length > maxHistoryPairs * 2) {
+        history = history.slice(-maxHistoryPairs * 2);
+      }
+
+    } catch (err) {
       hideThinking();
-      appendMessage('❌ Terjadi error: ' + error.message, 'bot');
+      console.error(err);
+      appendMessage("❌ Terjadi error: " + err.message, "bot");
     }
   }
 
-  document.getElementById('userInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') sendMessage();
+  document.getElementById("userInput").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") sendMessage();
   });
 
   // Pesan awal
-  appendMessage("Halo! Saya Hmmz Bot, asisten pribadi Anda. 😊\n\n**Menu pilihan:**\n- 📚 Belajar\n- 🎉 Hiburan\n- 💡 Ide Kreatif\n- 🔧 Bantuan Teknis\n- ⚡ Info Cepat", "bot");
+  appendMessage(
+    "Halo! Saya Hmmz Bot, asisten pribadi Anda. 😊\n\n**Menu pilihan:**\n- 📚 Belajar\n- 🎉 Hiburan\n- 💡 Ide Kreatif\n- 🔧 Bantuan Teknis\n- ⚡ Info Cepat",
+    "bot"
+  );
 </script>
-</body>
-</html>
