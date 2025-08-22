@@ -30,7 +30,6 @@
       overflow: hidden;
     }
 
-    /* HEADER FIXED */
     .header-container {
       background-color: #075E54;
       color: white;
@@ -41,15 +40,8 @@
       z-index: 10;
       border-bottom: 3px solid #e5ddd5;
     }
-    .header-container h1 {
-      margin: 0;
-      font-size: 20px;
-    }
-    .header-container p {
-      margin: 3px 0 0 0;
-      font-size: 12px;
-      opacity: 0.9;
-    }
+    .header-container h1 { margin: 0; font-size: 20px; }
+    .header-container p { margin: 3px 0 0 0; font-size: 12px; opacity: 0.9; }
 
     .messages {
       flex: 1;
@@ -60,7 +52,6 @@
       gap: 8px;
     }
 
-    /* BUBBLE CHAT USER */
     .message.user {
       max-width: 75%;
       padding: 6px 8px;
@@ -75,7 +66,6 @@
       display: inline-block;
     }
 
-    /* BOT hanya teks biasa */
     .message.bot {
       align-self: flex-start;
       background: none;
@@ -86,7 +76,6 @@
       line-height: 1.4;
     }
 
-    /* TYPING INDICATOR */
     #typing-indicator {
       align-self: flex-start;
       font-size: 12px;
@@ -112,14 +101,12 @@
       padding: 10px 20px;
       border-radius: 25px;
       border: none;
-      background-color: #25D366; /* warna WA */
+      background-color: #25D366;
       color: #fff;
       cursor: pointer;
       font-weight: bold;
     }
-    button:hover {
-      background-color: #20b85c;
-    }
+    button:hover { background-color: #20b85c; }
   </style>
 </head>
 <body>
@@ -140,12 +127,15 @@
   </div>
 
   <script>
-    const apiUrl = 'https://hmmz-bot01.vercel.app/chat'; 
+    const apiUrlChat = 'https://hmmz-bot01.vercel.app/chat';
+    const apiUrlWelcome = 'https://hmmz-bot01.vercel.app/welcome';
+    let welcomeShown = false;
 
-    function appendMessage(text, sender) {
+    function appendMessage(text, sender, id = null) {
       const messagesDiv = document.getElementById('messages');
       const msgDiv = document.createElement('div');
       msgDiv.className = 'message ' + sender;
+      if (id) msgDiv.id = id;
 
       msgDiv.innerHTML = sender === "bot" ? marked.parse(text) : text;
 
@@ -153,19 +143,36 @@
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
+    async function showWelcome() {
+      try {
+        const res = await fetch(apiUrlWelcome);
+        const data = await res.json();
+        appendMessage(data.reply, 'bot', 'welcome');
+        welcomeShown = true;
+      } catch (error) {
+        appendMessage('❌ Gagal memuat pesan awal.', 'bot', 'welcome');
+      }
+    }
+
     async function sendMessage() {
       const input = document.getElementById('userInput');
       const message = input.value.trim();
       if (!message) return;
 
+      // Hapus pesan awal jika ada
+      if (welcomeShown) {
+        const welcome = document.getElementById('welcome');
+        if (welcome) welcome.remove();
+        welcomeShown = false;
+      }
+
       appendMessage(message, 'user');
       input.value = '';
 
-      // tampilkan indikator mengetik
       document.getElementById('typing-indicator').style.display = "block";
 
       try {
-        const response = await fetch(apiUrl, {
+        const response = await fetch(apiUrlChat, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message })
@@ -174,7 +181,6 @@
         if (!response.ok) throw new Error('Server error');
         const data = await response.json();
 
-        // sembunyikan indikator
         document.getElementById('typing-indicator').style.display = "none";
         appendMessage(data.reply, 'bot');
 
@@ -186,13 +192,13 @@
 
     document.getElementById('userInput').addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
-        e.preventDefault(); // biar ga bikin newline
+        e.preventDefault();
         sendMessage();
       }
     });
 
-    // Pesan awal
-    appendMessage("**Assalamu'alaikum warahmatullahi wabarakatuh**<p>Saya Hmmz Bot, asisten pribadi Anda. 😊\n\n**Menu pilihan:**</p><ul><li> 📚 **Belajar** - Penjelasan topik apa saja</li><li> 🎉 **Hiburan** - Lelucon, cerita, atau games</li><li> 💡 **Ide Kreatif** - Brainstorming dan inspirasi</li><li> 🔧 **Bantuan Teknis** - Solusi masalah teknis</li><li> ⚡ **Info Cepat** - Fakta dan informasi singkat</li></ul>Butuh rekomendasi hari ini?", "bot");
+    // Tampilkan salam awal saat halaman load
+    window.onload = showWelcome;
   </script>
 </body>
 </html>
