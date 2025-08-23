@@ -41,10 +41,10 @@
       font-style: normal; /* tetap normal */
     }
 
-    /* Isi puisi: natural miring, font serif nyaman */
+    /* Isi puisi: natural miring, font serif nyaman, fleksibel */
     .puisi-container .isi {
       font-family: Georgia, serif; /* font natural */
-      font-size: 1rem;
+      font-size: clamp(0.9rem, 1.2vw, 1rem); /* fleksibel */
       font-style: italic;        /* miring */
       color: #4a4a4a;
       line-height: 1.6;
@@ -118,6 +118,18 @@ Jika semua kembali pada mula jalan.
   </div>
 
   <a href="index.html" class="btn">Kembali ke Homepage</a>
+
+  <!-- Template copy-paste untuk puisi baru -->
+  <!--
+  <div class="puisi-container">
+    <div class="judul">Judul Baru</div>
+    <div class="isi">
+Isi baris pertama
+Isi baris kedua
+Isi baris ketiga
+    </div>
+  </div>
+  -->
 
 </body>
 </html>
