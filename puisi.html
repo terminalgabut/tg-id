@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Puisi Melankolis</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,700&display=swap" rel="stylesheet">
+  <title>Puisi Melankolis Soft</title>
+  <!-- Font judul: Playfair Display, font puisi: Georgia italic -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Merriweather', serif;
-      background: #fefaf4;
+      background: #fefaf4; /* soft background */
       color: #2c2c2c;
       padding: 50px 20px;
       line-height: 1.8;
@@ -23,8 +24,6 @@
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
       transition: background 0.3s ease, transform 0.3s ease;
-      word-wrap: break-word; /* kata panjang dipotong agar tetap di kontainer */
-      overflow-wrap: break-word;
     }
     .puisi-container:hover {
       background: rgba(255,255,255,0.95);
@@ -39,18 +38,18 @@
       margin-bottom: 15px;
       letter-spacing: 1px;
       text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+      font-style: normal; /* tetap normal */
     }
 
-    /* Isi puisi: lebih kecil, miring, fleksibel */
+    /* Isi puisi: natural miring, font serif nyaman */
     .puisi-container .isi {
-      font-family: 'Playfair Display', serif;
-      font-size: 0.95rem;        /* lebih kecil agar baris panjang tetap nyaman */
-      font-style: italic;         /* miring */
+      font-family: Georgia, serif; /* font natural */
+      font-size: 1rem;
+      font-style: italic;        /* miring */
       color: #4a4a4a;
       line-height: 1.6;
-      white-space: pre-line;      /* baris baru dihormati */
-      word-wrap: break-word;      /* kata panjang dipotong */
-      overflow-wrap: break-word;
+      white-space: pre-line;     /* baris baru dihormati */
+      word-wrap: break-word;     /* baris panjang tetap rapi */
     }
 
     /* Tombol */
@@ -96,6 +95,15 @@ Tidakkah beruntung diriku?
 Terlelap, memimpikan wajah indahmu
 Andaikan ini bukan sekadar anganku
 Mungkin telah tenang terpejam mataku
+    </div>
+  </div>
+
+  <div class="puisi-container">
+    <div class="judul">...</div>
+    <div class="isi">
+Tertawalah—barangkali itu bisa menutupi lukamu
+Jika menangis dapat menidurkan lelapmu
+Semoga mimpimu sehangat senyum masa kecilmu
     </div>
   </div>
 
