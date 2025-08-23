@@ -28,7 +28,6 @@
       display: flex;
       flex-direction: column;
       box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      overflow: hidden;
     }
 
     .header-container {
@@ -47,15 +46,15 @@
 
     .messages {
       flex: 1 1 auto;
-      min-height: 0;                 /* ✅ kunci biar bisa scroll */
+      min-height: 0;                  /* ✅ fix flexbox agar scroll bisa jalan */
       padding: 10px;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;              /* ✅ scroll aktif */
+      overflow-y: auto;               /* ✅ scroll ke bawah */
       overflow-x: hidden;
       gap: 8px;
       border-bottom: 1px solid #ddd;
-      -webkit-overflow-scrolling: touch; /* ✅ smooth di HP */
+      -webkit-overflow-scrolling: touch;
     }
 
     .message.user {
@@ -84,8 +83,9 @@
       color: #000;
       border-bottom-left-radius: 0;
       display: inline-block;
+
+      /* ✅ scroll horizontal kalau tabel/kode panjang */
       overflow-x: auto;
-      overflow-y: hidden;
       white-space: normal;
     }
 
@@ -169,11 +169,8 @@
       msgDiv.innerHTML = sender === "bot" ? marked.parse(text) : text;
       messagesDiv.insertBefore(msgDiv, document.getElementById('typing-indicator'));
 
-      // ✅ cek apakah user sedang di bawah
-      const nearBottom = Math.abs(messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight) < 50;
-      if (nearBottom) {
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-      }
+      // auto scroll ke bawah
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
     async function showWelcome() {
