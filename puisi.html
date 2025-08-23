@@ -3,65 +3,146 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Puisi Saya</title>
+  <title>Puisi Melankolis Artsy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Georgia, serif;
-      background: #ec5dd5;
-      padding: 50px;
-      text-align: left;
+      font-family: 'Merriweather', serif;
+      background: linear-gradient(135deg, #fceabb, #f8b500); /* gradient lembut */
+      color: #2c2c2c;
+      padding: 50px 20px;
+      line-height: 1.8;
+      transition: background 0.5s ease;
     }
-    h1 h2 {
-      color: #d35400;
+
+    /* Judul */
+    .judul {
+      font-family: 'Playfair Display', serif;
+      color: #b35843;
+      margin-top: 40px;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+      transition: color 0.3s ease, text-shadow 0.3s ease;
     }
-    p {
-      color: #555;
-      font-size: 15px;
-      line-height: 1.6;
-      max-width: 600px;
-      margin: 20px 0;
+    .judul.h1 { font-size: 3rem; }
+    .judul.h2 { font-size: 2.2rem; }
+    .judul.h3 { font-size: 1.5rem; color: #7a5c50; }
+    .judul.h4 { font-size: 1.3rem; color: #5c4a43; }
+
+    /* Efek hover untuk judul */
+    .judul:hover {
+      color: #923f2f;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
-    a.btn {
-      display: inline-block;
-      background: #3498db;
-      color: white;
+
+    /* Puisi */
+    .puisi {
+      max-width: 700px;
+      margin: 0 auto 30px;
+      font-size: 1.1rem;
+      color: #3c3c3c;
+      white-space: pre-line;
       padding: 10px 20px;
       border-radius: 8px;
+      background: rgba(255,255,255,0.6);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+
+    .puisi:hover {
+      background: rgba(255,255,255,0.8);
+      transform: translateY(-3px);
+    }
+
+    /* Puisi preformatted */
+    .pre-puisi {
+      font-family: 'Merriweather', serif;
+      font-size: 1.05rem;
+      color: #3c3c3c;
+      background: rgba(255,255,255,0.6);
+      padding: 20px;
+      border-left: 4px solid #b35843;
+      border-radius: 5px;
+      white-space: pre-line;
+      max-width: 700px;
+      margin: 0 auto 30px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+
+    .pre-puisi:hover {
+      background: rgba(255,255,255,0.8);
+      transform: translateY(-3px);
+    }
+
+    /* Tombol */
+    a.btn {
+      display: inline-block;
+      background: #b35843;
+      color: white;
+      padding: 12px 25px;
+      border-radius: 10px;
       text-decoration: none;
-      margin-top: 20px;
+      margin-top: 30px;
+      transition: background 0.3s ease, transform 0.3s ease;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
     a.btn:hover {
-      background: #2980b9;
+      background: #923f2f;
+      transform: translateY(-2px);
     }
+
   </style>
 </head>
 <body>
-  <h1>"Semi~"</h1>
-  <p>Ego yang mengakar di benakmu</p>
-  <p>Meragukan hadirku di dasar hatimu</p>
-  <p>Seperti bibit yang perlahan tumbuh</p>
-  <p>Menjadi sebab tunas-tunas rindu</p>
-  <p>Kau hadirkan keindahan yang utuh</p>
-  <p>Laksana bunga yang mekar—lalu…</p>
-  <p>Gugur... dan layu</p>
-  <p>"</p>
 
-  
-  <h2>"Angan"</h2>
-  <p>Hangat menemani tidurku</p>
-  <p>Tidakkah beruntung diriku?</p>
-  <p>Terlelap, memimpikan wajah indahmu</p>
-  <p>Andaikan ini bukan sekadar anganku</p>
-  <p>Mungkin telah tenang terpejam mataku</p>
-  <p>"</p>
+  <div class="judul h1">Semi~</div>
+  <div class="puisi">
+Ego yang mengakar di benakmu
+Meragukan hadirku di dasar hatimu
+Seperti bibit yang perlahan tumbuh
+Menjadi sebab tunas-tunas rindu
+Kau hadirkan keindahan yang utuh
+Laksana bunga yang mekar—lalu…
+Gugur... dan layu
+  </div>
 
-  <h3>...</h3> 
-  <p>"Tertawalah—barangkali itu bisa menutupi lukamu</p>
-  <p>Jika menangis dapat menidurkan lelapmu</p>
-  <p>Semoga mimpimu sehangat senyum masa kecilmu"</p>
- 
+  <div class="judul h2">Angan</div>
+  <div class="puisi">
+Hangat menemani tidurku
+Tidakkah beruntung diriku?
+Terlelap, memimpikan wajah indahmu
+Andaikan ini bukan sekadar anganku
+Mungkin telah tenang terpejam mataku
+  </div>
 
+  <div class="judul h3">...</div>
+  <div class="puisi">
+Tertawalah—barangkali itu bisa menutupi lukamu
+Jika menangis dapat menidurkan lelapmu
+Semoga mimpimu sehangat senyum masa kecilmu
+  </div>
 
- <a href="index.html" class="btn">Kembali ke Homepage</a>
+  <div class="judul h4">Sisifus</div>
+  <div class="pre-puisi">
+Sejauh mana kau berlarian?
+Sekuat apa kau bertahan?
+Sebesar apa kau berkorban?
+Jika semua kembali pada mula jalan.
+  </div>
+
+  <a href="index.html" class="btn">Kembali ke Homepage</a>
+
+  <!-- Tambah puisi baru -->
+  <!--
+  <div class="judul h2">Judul Baru</div>
+  <div class="puisi">
+Isi puisi baru di sini
+Baris baru otomatis dihormati
+  </div>
+  -->
+
 </body>
 </html>
