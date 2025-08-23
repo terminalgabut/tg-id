@@ -1,237 +1,243 @@
-<!DOCTYPE html>  
-<html lang="id">  
-<head>  
-  <meta charset="UTF-8">  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-  <title>🤖 Hmmz Chatbot</title>  
-  
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>  
-  
-  <style>  
-    body {  
-      margin: 0;  
-      padding: 0;  
-      font-family: "Helvetica Neue", Arial, sans-serif;  
-      background-color: #e5ddd5;  
-      display: flex;  
-      justify-content: center;  
-      align-items: center;  
-      height: 100vh; 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🤖 Hmmz Chatbot</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background-color: #e5ddd5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden; /* biar scroll hanya di dalam chat */
+    }
+
+    .chat-container {
+      width: 92%;
+      height: 85vh;
+      max-width: 100vh;
+      background-color: #fff;
+      border-radius: 15px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
       overflow: hidden;
-    }  
-    .chat-container {  
-      width: 92%;  
-      height: 85vh;  
-      max-width: 100vh;  
-      background-color: #fff;  
-      border-radius: 15px;  
-      display: flex;  
-      flex-direction: column;  
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);   
-    }  
-  
-    .header-container {  
-      background-color: #075E54;  
-      color: white;  
-      padding: 15px;  
-      text-align: center;  
-      position: sticky;  
-      top: 0;  
-      z-index: 10;  
-      border-bottom: 3px solid #fff;  
-    }  
-    .header-container h1 { margin: 0; font-size: 20px; }  
-    .header-container p { margin: 3px 0 0 0; font-size: 12px; opacity: 0.9; }  
-  
-    .messages {  
-      flex: 1;  
-      padding: 10px;  
-      display: flex;  
-      flex-direction: column;  
-      overflow-y: auto;  
-      gap: 8px;  
-    }  
-  
-    .message.user {  
-      max-width: 75%;  
-      padding: 6px 8px;  
-      border-radius: 7.5px;  
-      font-size: 14px;  
-      line-height: 1.3;  
-      word-wrap: break-word;  
-      align-self: flex-end;  
-      background-color: #dcf8c6;  
-      color: #000;  
-      border-bottom-right-radius: 0;  
-      display: inline-block;  
-    }  
-  
-    /* ✅ bubble bot biar mirip chat */  
-    .message.bot {  
-      align-self: flex-start;  
-      max-width: 100%;  
-      padding: 6px 8px;  
-      border-radius: 7.5px;  
-      font-size: 14px;  
-      line-height: 1.3;  
-      word-wrap: break-word;  
-      background-color: #f7f7f8; /* abu muda ala ChatGPT */  
-      color: #000;  
-      border-bottom-left-radius: 0;  
-      display: inline-block;  
-  
-      /* tetap support scroll untuk kode/table */  
-      overflow-x: auto;  
+    }
+
+    .header-container {
+      background-color: #075E54;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 3px solid #fff;
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+    }
+    .header-container h1 { margin: 0; font-size: 20px; }
+    .header-container p { margin: 3px 0 0 0; font-size: 12px; opacity: 0.9; }
+
+    .messages {
+      flex: 1;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto; /* ✅ bisa scroll atas–bawah */
+      gap: 8px;
+    }
+
+    .message.user {
+      max-width: 75%;
+      padding: 8px 12px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.3;
+      word-wrap: break-word;
+      align-self: flex-end;
+      background-color: #dcf8c6;
+      color: #000;
+      border-bottom-right-radius: 4px; /* ujung khas WA */
+      display: inline-block;
+    }
+
+    .message.bot {
+      align-self: flex-start;
+      max-width: 90%;
+      padding: 8px 12px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.3;
+      word-wrap: break-word;
+      background-color: #f7f7f8;
+      color: #000;
+      border-bottom-left-radius: 4px;
+      display: inline-block;
+
+      /* ❌ jangan scroll ke bawah */
+      overflow-x: auto; /* ✅ cukup horizontal scroll untuk tabel/kode */
+      overflow-y: hidden;
+      white-space: normal;
+    }
+
+    .message.bot table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    #typing-indicator {
+      align-self: flex-start;
+      font-size: 12px;
+      font-style: italic;
+      color: gray;
+      display: none;
+    }
+
+    .input-container {
+      display: flex;
+      align-items: flex-end;
+      padding: 10px;
+      background-color: #fff;
+      gap: 8px;
+      border-top: 1px solid #eee;
+    }
+
+    textarea {
+      flex: 1;
+      padding: 10px 15px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      outline: none;
+      resize: none;
+      font-family: inherit;
+      background-color: #fff;
       overflow-y: auto;
-      white-space: normal;  
-    }  
-  
-    .message.bot table {  
-      display: block;  
-      overflow-x: auto; 
-      overflow-y: auto;
-      white-space: nowrap;  
-    }  
-  
-    #typing-indicator {  
-      align-self: flex-start;  
-      font-size: 12px;  
-      font-style: italic;  
-      color: gray;  
-      display: none;  
-    }  
-  
-    .input-container {  
-      display: flex;  
-      align-items: flex-end;  
-      padding: 10px;  
-      background-color: #fff;  
-      gap: 8px;  
-    }  
-    textarea {  
-      flex: 1;  
-      padding: 10px 15px;  
-      border-radius: 20px;  
-      border: 1px solid #ccc;  
-      outline: none;  
-      resize: none;  
-      font-family: inherit;  
-      background-color: #fff;  
-      overflow-y: auto;  
-    }  
-    button {  
-      padding: 10px 20px;  
-      border-radius: 25px;  
-      border: none;  
-      background-color: #25D366;  
-      color: #fff;  
-      cursor: pointer;  
-      font-weight: bold;  
-      flex-shrink: 0;  
-    }  
-    button:hover { background-color: #20b85c; }  
-  </style>  
-</head>  
-<body>  
-  <div class="chat-container">  
-    <div class="header-container">  
-      <h1>🤖 Hmmz Bot</h1>  
-      <p>AI serba bisa, siap membantu saudara✨</p>  
-    </div>  
-  
-    <div class="messages" id="messages">  
-      <div id="typing-indicator">Sabar sedang mengetik...</div>  
-    </div>  
-  
-    <div class="input-container">  
-      <textarea id="userInput" rows="1" placeholder="Tulis pesan..." enterkeyhint="newline"></textarea>  
-      <button onclick="sendMessage()">Kirim</button>  
-    </div>  
-  </div>  
-  
-  <script>  
-    const apiUrlChat = 'https://hmmz-bot01.vercel.app/chat';  
-    const apiUrlWelcome = 'https://hmmz-bot01.vercel.app/welcome';  
-    let welcomeShown = false;  
-  
-    const sessionId = "sess-" + Math.random().toString(36).substr(2, 9);  
-  
-    function appendMessage(text, sender, id = null) {  
-      const messagesDiv = document.getElementById('messages');  
-      const msgDiv = document.createElement('div');  
-      msgDiv.className = 'message ' + sender;  
-      if (id) msgDiv.id = id;  
-  
-      msgDiv.innerHTML = sender === "bot" ? marked.parse(text) : text;  
-  
-      messagesDiv.insertBefore(msgDiv, document.getElementById('typing-indicator'));  
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;  
-    }  
-  
-    async function showWelcome() {  
-      try {  
-        const res = await fetch(apiUrlWelcome);  
-        const data = await res.json();  
-        appendMessage(data.reply, 'bot', 'welcome');  
-        welcomeShown = true;  
-      } catch (error) {  
-        appendMessage('❌ Gagal memuat pesan awal.', 'bot', 'welcome');  
-      }  
-    }  
-  
-    async function sendMessage() {  
-      const input = document.getElementById('userInput');  
-      const message = input.value.trim();  
-      if (!message) return;  
-  
-      if (welcomeShown) {  
-        const welcome = document.getElementById('welcome');  
-        if (welcome) welcome.remove();  
-        welcomeShown = false;  
-      }  
-  
-      appendMessage(message, 'user');  
-      input.value = '';  
-      input.style.height = "auto";  
-  
-      document.getElementById('typing-indicator').style.display = "block";  
-  
-      try {  
-        const response = await fetch(apiUrlChat, {  
-          method: 'POST',  
-          headers: { 'Content-Type': 'application/json' },  
-          body: JSON.stringify({   
-            message,  
-            session_id: sessionId,  
-            mode: "qa"  
-          })  
-        });  
-  
-        if (!response.ok) throw new Error('Server error');  
-        const data = await response.json();  
-  
-        document.getElementById('typing-indicator').style.display = "none";  
-        appendMessage(data.reply, 'bot');  
-  
-      } catch (error) {  
-        document.getElementById('typing-indicator').style.display = "none";  
-        appendMessage('❌ Terjadi error: ' + error.message, 'bot');  
-      }  
-    }  
-  
-    const inputEl = document.getElementById('userInput');  
-    inputEl.addEventListener('keydown', function(e) {  
-      if (e.key === 'Enter' && !e.shiftKey) {  
-        e.preventDefault();  
-        sendMessage();  
-      }  
-    });  
-    inputEl.addEventListener('input', function() {  
-      this.style.height = "auto";  
-      this.style.height = (this.scrollHeight) + "px";  
-    });  
-  
-    window.onload = showWelcome;  
-  </script>  
-</body>  
+      max-height: 120px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border-radius: 25px;
+      border: none;
+      background-color: #25D366;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    button:hover { background-color: #20b85c; }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="header-container">
+      <h1>🤖 Hmmz Bot</h1>
+      <p>AI serba bisa, siap membantu saudara✨</p>
+    </div>
+
+    <div class="messages" id="messages">
+      <div id="typing-indicator">Sabar sedang mengetik...</div>
+    </div>
+
+    <div class="input-container">
+      <textarea id="userInput" rows="1" placeholder="Tulis pesan..." enterkeyhint="newline"></textarea>
+      <button onclick="sendMessage()">Kirim</button>
+    </div>
+  </div>
+
+  <script>
+    const apiUrlChat = 'https://hmmz-bot01.vercel.app/chat';
+    const apiUrlWelcome = 'https://hmmz-bot01.vercel.app/welcome';
+    let welcomeShown = false;
+
+    const sessionId = "sess-" + Math.random().toString(36).substr(2, 9);
+
+    function appendMessage(text, sender, id = null) {
+      const messagesDiv = document.getElementById('messages');
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message ' + sender;
+      if (id) msgDiv.id = id;
+
+      msgDiv.innerHTML = sender === "bot" ? marked.parse(text) : text;
+
+      messagesDiv.insertBefore(msgDiv, document.getElementById('typing-indicator'));
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    async function showWelcome() {
+      try {
+        const res = await fetch(apiUrlWelcome);
+        const data = await res.json();
+        appendMessage(data.reply, 'bot', 'welcome');
+        welcomeShown = true;
+      } catch (error) {
+        appendMessage('❌ Gagal memuat pesan awal.', 'bot', 'welcome');
+      }
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('userInput');
+      const message = input.value.trim();
+      if (!message) return;
+
+      if (welcomeShown) {
+        const welcome = document.getElementById('welcome');
+        if (welcome) welcome.remove();
+        welcomeShown = false;
+      }
+
+      appendMessage(message, 'user');
+      input.value = '';
+      input.style.height = "auto";
+
+      document.getElementById('typing-indicator').style.display = "block";
+
+      try {
+        const response = await fetch(apiUrlChat, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message,
+            session_id: sessionId,
+            mode: "qa"
+          })
+        });
+
+        if (!response.ok) throw new Error('Server error');
+        const data = await response.json();
+
+        document.getElementById('typing-indicator').style.display = "none";
+        appendMessage(data.reply, 'bot');
+
+      } catch (error) {
+        document.getElementById('typing-indicator').style.display = "none";
+        appendMessage('❌ Terjadi error: ' + error.message, 'bot');
+      }
+    }
+
+    const inputEl = document.getElementById('userInput');
+    inputEl.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+    inputEl.addEventListener('input', function() {
+      this.style.height = "auto";
+      this.style.height = (this.scrollHeight) + "px";
+    });
+
+    window.onload = showWelcome;
+  </script>
+</body>
 </html>
