@@ -31,31 +31,47 @@
       overflow: hidden;
     }
 
+    /* ✅ Header dengan foto profil */
     .header-container {
       background-color: #075E54;
       color: white;
-      padding: 15px;
-      text-align: center;
+      padding: 10px 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
       position: sticky;
       top: 0;
       z-index: 10;
-      border-top-left-radius: 15px;
-      border-top-right-radius: 15px;
     }
-    .header-container h1 { margin: 0; font-size: 20px; }
-    .header-container p { margin: 3px 0 0 0; font-size: 12px; opacity: 0.9; }
+    .bot-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .header-text h1 {
+      margin: 0;
+      font-size: 16px;
+    }
+    .header-text p {
+      margin: 0;
+      font-size: 12px;
+      opacity: 0.9;
+    }
 
     .messages {
       flex: 1 1 auto;
-      min-height: 0;                 /* ✅ biar bisa scroll di flexbox */
+      min-height: 0;
       padding: 10px;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;              /* ✅ scroll utama */
+      overflow-y: auto;
       overflow-x: hidden;
       gap: 8px;
       border-bottom: 1px solid #ddd;
-      -webkit-overflow-scrolling: touch; /* ✅ smooth di HP */
+      -webkit-overflow-scrolling: touch;
     }
 
     .message.user {
@@ -84,10 +100,8 @@
       color: #000;
       border-bottom-left-radius: 0;
       display: inline-block;
-      /* ❌ hapus scroll internal di bubble */
     }
 
-    /* ✅ kalau ada tabel panjang, baru boleh geser samping */
     .message.bot table {
       display: block;
       overflow-x: auto;
@@ -138,8 +152,11 @@
 <body>
   <div class="chat-container">
     <div class="header-container">
-      <h1>🤖 Hmmz Bot</h1>
-      <p>AI serba bisa, siap membantu saudara✨</p>
+      <img src="https://i.ibb.co.com/HLZhSqpM/20231210-155109.jpg" alt="Bot Avatar" class="bot-avatar">
+      <div class="header-text">
+        <h1>🤖 Hmmz Bot</h1>
+        <p>AI serba bisa, siap membantu saudara✨</p>
+      </div>
     </div>
 
     <div class="messages" id="messages">
@@ -168,7 +185,6 @@
       msgDiv.innerHTML = sender === "bot" ? marked.parse(text) : text;
       messagesDiv.insertBefore(msgDiv, document.getElementById('typing-indicator'));
 
-      // ✅ auto scroll ke bawah
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
