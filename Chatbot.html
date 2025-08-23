@@ -160,7 +160,7 @@
     </div>
 
     <div class="messages" id="messages">
-      <div id="typing-indicator">Sabar sedang mengetik...</div>
+      <div id="typing-indicator">Bismillahirrahmanirrahim...</div>
     </div>
 
     <div class="input-container">
@@ -195,7 +195,7 @@
         appendMessage(data.reply, 'bot', 'welcome');
         welcomeShown = true;
       } catch (error) {
-        appendMessage('❌ Gagal memuat pesan awal.', 'bot', 'welcome');
+        appendMessage('❌ Astaghfirullah Gagal memuat.', 'bot', 'welcome');
       }
     }
 
@@ -235,7 +235,7 @@
 
       } catch (error) {
         document.getElementById('typing-indicator').style.display = "none";
-        appendMessage('❌ Terjadi error: ' + error.message, 'bot');
+        appendMessage('❌ Innalillahi: ' + error.message, 'bot');
       }
     }
 
