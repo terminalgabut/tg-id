@@ -28,6 +28,7 @@
       display: flex;
       flex-direction: column;
       box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      overflow: hidden;
     }
 
     .header-container {
@@ -46,15 +47,15 @@
 
     .messages {
       flex: 1 1 auto;
-      min-height: 0;                  /* ✅ fix flexbox agar scroll bisa jalan */
+      min-height: 0;                 /* ✅ biar bisa scroll di flexbox */
       padding: 10px;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;               /* ✅ scroll ke bawah */
+      overflow-y: auto;              /* ✅ scroll utama */
       overflow-x: hidden;
       gap: 8px;
       border-bottom: 1px solid #ddd;
-      -webkit-overflow-scrolling: touch;
+      -webkit-overflow-scrolling: touch; /* ✅ smooth di HP */
     }
 
     .message.user {
@@ -83,12 +84,10 @@
       color: #000;
       border-bottom-left-radius: 0;
       display: inline-block;
-
-      /* ✅ scroll horizontal kalau tabel/kode panjang */
-      overflow-x: auto;
-      white-space: normal;
+      /* ❌ hapus scroll internal di bubble */
     }
 
+    /* ✅ kalau ada tabel panjang, baru boleh geser samping */
     .message.bot table {
       display: block;
       overflow-x: auto;
@@ -169,7 +168,7 @@
       msgDiv.innerHTML = sender === "bot" ? marked.parse(text) : text;
       messagesDiv.insertBefore(msgDiv, document.getElementById('typing-indicator'));
 
-      // auto scroll ke bawah
+      // ✅ auto scroll ke bawah
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
