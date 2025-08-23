@@ -131,6 +131,9 @@
     const apiUrlWelcome = 'https://hmmz-bot01.vercel.app/welcome';
     let welcomeShown = false;
 
+    // 🔑 buat session_id unik sekali per load halaman
+    const sessionId = "sess-" + Math.random().toString(36).substr(2, 9);
+
     function appendMessage(text, sender, id = null) {
       const messagesDiv = document.getElementById('messages');
       const msgDiv = document.createElement('div');
@@ -175,7 +178,11 @@
         const response = await fetch(apiUrlChat, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message })
+          body: JSON.stringify({ 
+            message,
+            session_id: sessionId,   // ✅ kirim session_id ke backend
+            mode: "qa"
+          })
         });
 
         if (!response.ok) throw new Error('Server error');
