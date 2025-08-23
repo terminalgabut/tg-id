@@ -66,21 +66,25 @@
       display: inline-block;
     }
 
+    /* ✅ bubble bot biar mirip chat */
     .message.bot {
       align-self: flex-start;
-      background: none;
-      border: none;
-      padding: 0;
-      max-width: 90%;
+      max-width: 75%;
+      padding: 6px 8px;
+      border-radius: 7.5px;
       font-size: 14px;
-      line-height: 1.4;
+      line-height: 1.3;
+      word-wrap: break-word;
+      background-color: #f7f7f8; /* abu muda ala ChatGPT */
+      color: #000;
+      border-bottom-left-radius: 0;
+      display: inline-block;
 
-      /* ✅ biar bisa scroll samping */
+      /* tetap support scroll untuk kode/table */
       overflow-x: auto;
       white-space: normal;
     }
 
-    /* ✅ khusus table/markdown panjang */
     .message.bot table {
       display: block;
       overflow-x: auto;
@@ -106,7 +110,7 @@
       border-radius: 25px;
       border: 1px solid #ccc;
       outline: none;
-      resize: none; /* biar rapi */
+      resize: none;
       font-family: inherit;
     }
     button {
@@ -134,7 +138,6 @@
     </div>
 
     <div class="input-container">
-      <!-- ✅ ganti input jadi textarea supaya bisa multi-line -->
       <textarea id="userInput" rows="1" placeholder="Tulis pesan..."></textarea>
       <button onclick="sendMessage()">Kirim</button>
     </div>
@@ -145,7 +148,6 @@
     const apiUrlWelcome = 'https://hmmz-bot01.vercel.app/welcome';
     let welcomeShown = false;
 
-    // 🔑 buat session_id unik sekali per load halaman
     const sessionId = "sess-" + Math.random().toString(36).substr(2, 9);
 
     function appendMessage(text, sender, id = null) {
@@ -176,7 +178,6 @@
       const message = input.value.trim();
       if (!message) return;
 
-      // Hapus pesan awal jika ada
       if (welcomeShown) {
         const welcome = document.getElementById('welcome');
         if (welcome) welcome.remove();
@@ -185,7 +186,7 @@
 
       appendMessage(message, 'user');
       input.value = '';
-      input.style.height = "auto"; // reset tinggi textarea
+      input.style.height = "auto";
 
       document.getElementById('typing-indicator').style.display = "block";
 
@@ -195,7 +196,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             message,
-            session_id: sessionId,   // ✅ kirim session_id ke backend
+            session_id: sessionId,
             mode: "qa"
           })
         });
@@ -219,13 +220,11 @@
         sendMessage();
       }
     });
-    // otomatis tinggi textarea menyesuaikan
     inputEl.addEventListener('input', function() {
       this.style.height = "auto";
       this.style.height = (this.scrollHeight) + "px";
     });
 
-    // Tampilkan salam awal saat halaman load
     window.onload = showWelcome;
   </script>
 </body>
