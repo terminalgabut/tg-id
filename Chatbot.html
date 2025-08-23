@@ -74,6 +74,17 @@
       max-width: 90%;
       font-size: 14px;
       line-height: 1.4;
+
+      /* ✅ biar bisa scroll samping */
+      overflow-x: auto;
+      white-space: normal;
+    }
+
+    /* ✅ khusus table/markdown panjang */
+    .message.bot table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
     }
 
     #typing-indicator {
@@ -89,12 +100,14 @@
       padding: 10px;
       background-color: #f0f0f0;
     }
-    input {
+    textarea {
       flex: 1;
       padding: 10px 15px;
       border-radius: 25px;
       border: 1px solid #ccc;
       outline: none;
+      resize: none; /* biar rapi */
+      font-family: inherit;
     }
     button {
       margin-left: 10px;
@@ -121,7 +134,8 @@
     </div>
 
     <div class="input-container">
-      <input type="text" id="userInput" placeholder="Tulis pesan..." />
+      <!-- ✅ ganti input jadi textarea supaya bisa multi-line -->
+      <textarea id="userInput" rows="1" placeholder="Tulis pesan..."></textarea>
       <button onclick="sendMessage()">Kirim</button>
     </div>
   </div>
@@ -171,6 +185,7 @@
 
       appendMessage(message, 'user');
       input.value = '';
+      input.style.height = "auto"; // reset tinggi textarea
 
       document.getElementById('typing-indicator').style.display = "block";
 
@@ -197,11 +212,17 @@
       }
     }
 
-    document.getElementById('userInput').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
+    const inputEl = document.getElementById('userInput');
+    inputEl.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendMessage();
       }
+    });
+    // otomatis tinggi textarea menyesuaikan
+    inputEl.addEventListener('input', function() {
+      this.style.height = "auto";
+      this.style.height = (this.scrollHeight) + "px";
     });
 
     // Tampilkan salam awal saat halaman load
