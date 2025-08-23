@@ -17,7 +17,7 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      overflow: hidden; /* biar scroll hanya di chat, bukan di body */
+      /* ❌ overflow hidden dihapus biar scroll di HP normal */
     }
 
     .chat-container {
@@ -50,10 +50,11 @@
       padding: 10px;
       display: flex;
       flex-direction: column;
-      overflow-y: auto; /* ✅ biar bisa scroll ke atas & bawah */
+      overflow-y: auto; /* ✅ biar bisa scroll */
       overflow-x: hidden;
       gap: 8px;
       border-bottom: 1px solid #ddd;
+      -webkit-overflow-scrolling: touch; /* ✅ smooth di HP */
     }
 
     .message.user {
@@ -169,7 +170,13 @@
       msgDiv.innerHTML = sender === "bot" ? marked.parse(text) : text;
 
       messagesDiv.insertBefore(msgDiv, document.getElementById('typing-indicator'));
-      messagesDiv.scrollTop = messagesDiv.scrollHeight; // ✅ auto scroll ke bawah
+
+      // ✅ cek apakah user sedang di bawah
+      const nearBottom = Math.abs(messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight) < 50;
+
+      if (nearBottom) {
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }
     }
 
     async function showWelcome() {
