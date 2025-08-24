@@ -1,10 +1,10 @@
-const CACHE_NAME = "terminalgabut-cache-v1";
+const CACHE_NAME = "terminalgabut-cache-v2"; // Naikkan versi agar update
 const urlsToCache = [
-  "/",
-  "/index.html",
-  "/manifest.json",
-  "/icons/icon-192.png",
-  "/icons/icon-512.png"
+  "/tg-id/",
+  "/tg-id/index.html",
+  "/tg-id/manifest.json",
+  "/tg-id/icons/icon-192.png",
+  "/tg-id/icons/icon-512.png"
 ];
 
 self.addEventListener("install", (event) => {
