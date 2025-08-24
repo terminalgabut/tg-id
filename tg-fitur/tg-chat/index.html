@@ -162,6 +162,8 @@
 <!-- ✅ Navbar (Serasi dengan tg-fitur) -->
   <nav class="fixed top-0 left-0 w-full bg-blue-600 text-white px-6 py-4 flex justify-between items-center shadow-md z-50">
     <div class="text-xl font-bold">Terminal Gabut</div>
+    <div class="bg-blue-100 p-3 rounded-lg mb-3">
+          <strong>DinoBot</strong>
     <ul class="hidden md:flex gap-6">
       <li><a href="../index.html" class="hover:text-blue-200">Home</a></li>
       <li><a href="../tg-fitur/" class="hover:text-blue-200">Fitur</a></li>
@@ -170,8 +172,6 @@
   </nav>
 
   <div class="chat-container">
-   <div class="bg-blue-100 p-3 rounded-lg mg3">
-    <strong>Chat Ai DinoBot</strong>
      <div class="header-container">
       <img src="https://i.ibb.co.com/HLZhSqpM/20231210-155109.jpg" alt="Bot Avatar" class="bot-avatar">
       <div class="header-text">
@@ -189,11 +189,6 @@
       <button onclick="sendMessage()">Kirim</button>
     </div>
   </div>
-
-<!-- ✅ Footer -->
-  <footer class="bg-gray-100 text-center py-6 mt-6">
-    <p>© 2025 Terminal Gabut - Semua Hak Dilindungi</p>
-  </footer>
 
   <script>
     const apiUrlChat = 'https://hmmz-bot01.vercel.app/chat';
@@ -279,5 +274,10 @@
 
     window.onload = showWelcome;
   </script>
+
+ <!-- Footer -->
+  <footer class="text-center py-6 text-gray-500">
+    © 2025 Terminal Gabut - Semua Hak Dilindungi
+  </footer>
 </body>
 </html>
