@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hmmz home</title>
+  <title>Hmmz Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f8f9fa;
+      font-family: 'Poppins', sans-serif;
+      background: #f5f9ff;
       margin: 0;
       padding: 0;
       display: flex;
@@ -18,13 +19,21 @@
     }
 
     header {
-      background: #2c3e50;
+      background: linear-gradient(90deg, #3b82f6, #60a5fa);
       color: white;
       width: 100%;
-      padding: 15px;
+      padding: 20px;
       text-align: center;
-      font-size: 24px;
-      font-weight: bold;
+      font-size: 26px;
+      font-weight: 600;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    header p {
+      font-size: 14px;
+      font-weight: 400;
+      margin-top: 5px;
+      color: #e2e8f0;
     }
 
     .container {
@@ -33,81 +42,98 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 20px;
+      padding: 20px;
+      max-width: 1000px;
     }
 
     .card {
       background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      padding: 20px;
-      width: 250px;
+      border-radius: 16px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+      padding: 25px;
+      width: 280px;
       text-align: center;
-      transition: transform 0.2s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     .card:hover {
-      transform: translateY(-5px);
+      transform: translateY(-8px);
+      box-shadow: 0 10px 16px rgba(0,0,0,0.12);
     }
 
     .card h2 {
-      color: #2c3e50;
+      color: #1e3a8a;
+      font-size: 20px;
       margin-bottom: 10px;
     }
 
     .card p {
-      color: #555;
+      color: #475569;
       font-size: 14px;
-      margin-bottom: 15px;
+      margin-bottom: 18px;
     }
 
     .btn {
-      background: #3498db;
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
       color: white;
-      padding: 10px 15px;
+      padding: 12px 20px;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       text-decoration: none;
       font-size: 14px;
+      font-weight: 600;
+      transition: background 0.3s ease, transform 0.2s ease;
+      display: inline-block;
     }
 
     .btn:hover {
-      background: #2980b9;
+      background: linear-gradient(90deg, #2563eb, #1d4ed8);
+      transform: scale(1.05);
     }
 
     footer {
       margin-top: 50px;
       padding: 15px;
       font-size: 14px;
-      color: #555;
+      color: #64748b;
+      text-align: center;
+    }
+
+    footer p {
+      margin: 5px 0;
     }
   </style>
 </head>
 <body>
-  <header>Wellcome to My Home 🛖</header>
+  <header>
+    Wellcome to My Home 🏠
+    <p>Temukan berbagai fitur menarik untuk hiburan dan edukasi!</p>
+  </header>
 
   <div class="container">
     <div class="card">
       <h2>Isi Otak</h2>
-      <p>ayo temukan bagian isi otak yang hilang🧠👀</p>
+      <p>Ayo temukan bagian isi otak yang hilang 🧠👀 dan uji pengetahuanmu!</p>
       <a href="puisi.html" class="btn">Let's Go...</a>
     </div>
 
-  <div class="card">
-      <h2>Chat Ai DinoBot</h2>
-      <p>Ai versi Halal🌙, tanya apa saja😎🔥</p>
+    <div class="card">
+      <h2>Chat AI DinoBot</h2>
+      <p>AI versi Halal 🌙, siap menjawab pertanyaanmu dengan seru 😎🔥</p>
       <a href="tg-chat/" target="_blank" class="btn">Ayo mulai...</a>
     </div>
 
     <div class="card">
-      <h2>Usal kami</h2>
-      <p>link secreto</p>
-      <a href="https://secreto.site/abw2x7" class="btn">tulis</a>
+      <h2>Kirim Pesan Rahasia</h2>
+      <p>Tulis pesan rahasia untuk kami melalui link Secreto 🔐</p>
+      <a href="https://secreto.site/abw2x7" class="btn">Tulis</a>
     </div>
   </div>
 
   <footer>
-    © 2025 - Just for fun
+    <p>© 2025 - Just for fun</p>
+    <p>Website ini dibuat hanya untuk hiburan dan edukasi. Stay creative!</p>
   </footer>
 </body>
 </html>
