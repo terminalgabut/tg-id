@@ -3,57 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fitur Terminal Gabut</title>
+  <title>Fitur | Terminal Gabut</title>
+  <meta name="description" content="Jelajahi semua fitur seru Terminal Gabut seperti Puisi, Chat AI, Spin Wheel, Quiz, dan lainnya.">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    body { font-family: 'Poppins', sans-serif; transition: background 0.3s, color 0.3s; }
+    .dark-mode { background: #1e293b; color: #f1f5f9; }
+  </style>
 </head>
-<body class="bg-gray-50 font-poppins">
+<body class="bg-gray-50">
+  <!-- Navbar -->
+  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
+    <div class="text-xl font-bold">Terminal Gabut</div>
+    <ul class="hidden md:flex gap-6">
+      <li><a href="../index.html" class="hover:text-blue-200">Home</a></li>
+      <li><a href="#" class="hover:text-blue-200">Fitur</a></li>
+    </ul>
+    <button id="darkToggle" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
+      🌙
+    </button>
+  </nav>
+
   <!-- Header -->
-  <header class="bg-blue-600 text-white py-4 text-center text-2xl font-bold shadow-md">
-    Fitur Terminal Gabut
+  <header class="bg-blue-600 text-white py-6 text-center text-3xl font-bold">
+    Jelajahi Semua Fitur Kami
   </header>
 
-  <!-- Container -->
+  <!-- Grid Fitur -->
   <div class="container mx-auto px-4 py-10 grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
     
-    <!-- Fitur Puisi -->
+    <!-- Puisi -->
     <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
-      <i class="fas fa-feather text-blue-600 text-4xl mb-4"></i>
+      <i class="fas fa-feather text-blue-600 text-3xl mb-4"></i>
       <h2 class="text-xl font-semibold mb-2">Puisi Melankolis</h2>
       <p class="text-gray-600 mb-4">Kumpulan puisi baper penuh makna.</p>
       <a href="tg-melankolis/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Baca Puisi</a>
     </div>
 
-    <!-- Fitur Chat AI -->
+    <!-- Chat AI -->
     <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
-      <i class="fas fa-robot text-blue-600 text-4xl mb-4"></i>
+      <i class="fas fa-robot text-blue-600 text-3xl mb-4"></i>
       <h2 class="text-xl font-semibold mb-2">Chat AI DinoBot</h2>
-      <p class="text-gray-600 mb-4">Ngobrol seru dengan AI versi halal.</p>
+      <p class="text-gray-600 mb-4">Ngobrol seru dengan AI kreatif!</p>
       <a href="tg-chat/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Chat</a>
     </div>
 
-    <!-- Fitur Spin -->
+    <!-- Spin Wheel -->
     <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
-      <i class="fas fa-sync-alt text-blue-600 text-4xl mb-4"></i>
+      <i class="fas fa-sync text-blue-600 text-3xl mb-4"></i>
       <h2 class="text-xl font-semibold mb-2">Spin Wheel</h2>
-      <p class="text-gray-600 mb-4">Putar roda keberuntungan, siapa tahu hoki!</p>
-      <a href="spin/index.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mainkan</a>
+      <p class="text-gray-600 mb-4">Putar roda dan dapatkan kejutan!</p>
+      <a href="../spin/index.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Putar Sekarang</a>
     </div>
 
-    <!-- Fitur Quiz -->
+    <!-- Quiz -->
     <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
-      <i class="fas fa-question-circle text-blue-600 text-4xl mb-4"></i>
-      <h2 class="text-xl font-semibold mb-2">Quiz Seru</h2>
-      <p class="text-gray-600 mb-4">Uji pengetahuan kamu dengan quiz menarik!</p>
-      <a href="quiz/index.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Ikuti Quiz</a>
+      <i class="fas fa-question-circle text-blue-600 text-3xl mb-4"></i>
+      <h2 class="text-xl font-semibold mb-2">Trivia Quiz</h2>
+      <p class="text-gray-600 mb-4">Uji pengetahuanmu dengan kuis seru!</p>
+      <a href="../quiz/index.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
     </div>
 
   </div>
 
   <!-- Footer -->
-  <footer class="bg-gray-100 text-center py-6 mt-10">
-    <p>© 2025 Terminal Gabut | <a href="../index.html" class="text-blue-600 hover:underline">Kembali ke Beranda</a></p>
+  <footer class="bg-gray-100 text-center py-6">
+    <p>© 2025 Terminal Gabut - Semua Hak Dilindungi</p>
   </footer>
+
+  <!-- Dark Mode Script -->
+  <script>
+    const toggleBtn = document.getElementById("darkToggle");
+    toggleBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+      localStorage.setItem("dark-mode", document.body.classList.contains("dark-mode"));
+    });
+    if(localStorage.getItem("dark-mode") === "true") {
+      document.body.classList.add("dark-mode");
+    }
+  </script>
+
+  <!-- Animasi GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script>
+    gsap.from(".card", { opacity: 0, y: 50, duration: 0.8, stagger: 0.2 });
+  </script>
 </body>
 </html>
