@@ -3,43 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terminal Ai Chat</title>
+  <title>DinoBot | Terminal Gabut</title>
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Poppins', sans-serif;
-      background-color: #f3f4f6; /* Soft gray */
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background-color: #e5ddd5;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      flex-direction: column;
+      min-height: 100vh;
     }
 
     .chat-container {
-      width: 95%;
-      height: 85vh;
-      max-width: 100vh;
+      width: 100%;
+      max-width: 800px;
+      height: 75vh;
+      margin: 20px auto;
       background-color: #fff;
       border-radius: 15px;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
       overflow: hidden;
     }
 
-    /* ✅ Header */
+    /* Header chat dalam box */
     .header-container {
-      background-color: #3B82F6; /* Soft Blue */
+      background-color: #075E54;
       color: white;
-      padding: 12px 15px;
+      padding: 10px 15px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       border-top-left-radius: 15px;
       border-top-right-radius: 15px;
       position: sticky;
@@ -47,61 +47,60 @@
       z-index: 10;
     }
     .bot-avatar {
-      width: 42px;
-      height: 42px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       object-fit: cover;
     }
     .header-text h1 {
       margin: 0;
-      font-size: 18px;
-      font-weight: 600;
+      font-size: 16px;
     }
     .header-text p {
       margin: 0;
-      font-size: 13px;
-      opacity: 0.95;
+      font-size: 12px;
+      opacity: 0.9;
     }
 
-    /* ✅ Area pesan */
     .messages {
       flex: 1 1 auto;
-      padding: 12px;
+      min-height: 0;
+      padding: 10px;
       display: flex;
       flex-direction: column;
       overflow-y: auto;
       overflow-x: hidden;
-      gap: 10px;
-      border-bottom: 1px solid #e5e7eb;
+      gap: 8px;
+      border-bottom: 1px solid #ddd;
       -webkit-overflow-scrolling: touch;
-      background-color: #f9fafb; /* Soft background */
     }
 
     .message.user {
       max-width: 75%;
-      padding: 8px 12px;
-      border-radius: 12px;
+      padding: 6px 8px;
+      border-radius: 7.5px;
       font-size: 14px;
-      line-height: 1.4;
+      line-height: 1.3;
       word-wrap: break-word;
       align-self: flex-end;
-      background-color: #E0F2FE; /* Light Blue */
-      color: #1e3a8a;
+      background-color: #dcf8c6;
+      color: #000;
       border-bottom-right-radius: 0;
+      display: inline-block;
     }
 
     .message.bot {
       align-self: flex-start;
-      max-width: 80%;
-      padding: 8px 12px;
-      border-radius: 12px;
+      max-width: 100%;
+      padding: 6px 8px;
+      border-radius: 7.5px;
       font-size: 14px;
-      line-height: 1.4;
+      line-height: 1.3;
       word-wrap: break-word;
-      background-color: #fff;
-      color: #111827;
-      border: 1px solid #e5e7eb;
+      background-color: #f7f7f8;
+      color: #000;
       border-bottom-left-radius: 0;
+      display: inline-block;
     }
 
     .message.bot table {
@@ -118,19 +117,18 @@
       display: none;
     }
 
-    /* ✅ Input */
     .input-container {
       display: flex;
       align-items: flex-end;
-      padding: 12px;
+      padding: 10px;
       background-color: #fff;
-      gap: 10px;
+      gap: 8px;
       border-bottom-left-radius: 15px;
       border-bottom-right-radius: 15px;
     }
     textarea {
       flex: 1;
-      padding: 10px 14px;
+      padding: 10px 15px;
       border-radius: 20px;
       border: 1px solid #ccc;
       outline: none;
@@ -138,25 +136,37 @@
       font-family: inherit;
       background-color: #fff;
       overflow-y: auto;
-      font-size: 14px;
     }
     button {
       padding: 10px 20px;
       border-radius: 25px;
       border: none;
-      background-color: #3B82F6;
+      background-color: #25D366;
       color: #fff;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: bold;
       flex-shrink: 0;
-      transition: background 0.2s ease;
     }
-    button:hover {
-      background-color: #2563eb;
-    }
+    button:hover { background-color: #20b85c; }
   </style>
 </head>
 <body>
+
+  <!-- ✅ Navbar (Serasi dengan tg-fitur) -->
+  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
+    <div class="text-xl font-bold">Terminal Gabut</div>
+    <ul class="hidden md:flex gap-6">
+      <li><a href="../index.html" class="hover:text-blue-200">Home</a></li>
+      <li><a href="../tg-fitur/" class="hover:text-blue-200">Fitur</a></li>
+    </ul>
+  </nav>
+
+  <!-- ✅ Header Halaman -->
+  <header class="bg-blue-600 text-white py-6 text-center text-3xl font-bold">
+    Chat AI DinoBot
+  </header>
+
+  <!-- ✅ Chat Box -->
   <div class="chat-container">
     <div class="header-container">
       <img src="https://i.ibb.co.com/HLZhSqpM/20231210-155109.jpg" alt="Bot Avatar" class="bot-avatar">
@@ -167,7 +177,7 @@
     </div>
 
     <div class="messages" id="messages">
-      <div id="typing-indicator">Bismillahirrahmanirrahim</div>
+      <div id="typing-indicator">Bismillahirrahmanirrahim...</div>
     </div>
 
     <div class="input-container">
@@ -175,6 +185,11 @@
       <button onclick="sendMessage()">Kirim</button>
     </div>
   </div>
+
+  <!-- ✅ Footer -->
+  <footer class="bg-gray-100 text-center py-6 mt-6">
+    <p>© 2025 Terminal Gabut - Semua Hak Dilindungi</p>
+  </footer>
 
   <script>
     const apiUrlChat = 'https://hmmz-bot01.vercel.app/chat';
@@ -202,7 +217,7 @@
         appendMessage(data.reply, 'bot', 'welcome');
         welcomeShown = true;
       } catch (error) {
-        appendMessage('❌ Astaghfirullah memuat sambutan.', 'bot', 'welcome');
+        appendMessage('❌ Astaghfirullah Gagal memuat.', 'bot', 'welcome');
       }
     }
 
@@ -242,7 +257,7 @@
 
       } catch (error) {
         document.getElementById('typing-indicator').style.display = "none";
-        appendMessage('❌ Innalillahi terjadi kesalahan: ' + error.message, 'bot');
+        appendMessage('❌ Innalillahi: ' + error.message, 'bot');
       }
     }
 
