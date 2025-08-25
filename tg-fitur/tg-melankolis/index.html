@@ -3,247 +3,262 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terminal Melankolis</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <title>TG - Melankolis</title>
   <style>
-    body { font-family: 'Poppins', sans-serif; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #ffffff;
+      color: #222;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #f4f8fb;
+      border-bottom: 2px solid #e0e7ef;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      color: #2563eb;
+    }
+    header p {
+      margin: 0.5rem 0 0;
+      color: #555;
+    }
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .puisi-container {
+      background: #f9fbfd;
+      border-left: 4px solid #2563eb;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border-radius: 8px;
+    }
+    .judul {
+      font-weight: bold;
+      margin-bottom: 0.75rem;
+      font-size: 1.2rem;
+      color: #1e40af;
+    }
+    .isi {
+      font-style: italic;
+      line-height: 1.8;
+      white-space: pre-line; /* biar enter di puisi kebaca */
+    }
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      border-top: 1px solid #e0e7ef;
+      font-size: 0.9rem;
+      color: #555;
+      margin-top: 3rem;
+    }
   </style>
 </head>
-<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100">
-
-  <!-- NAVBAR -->
-  <nav class="bg-blue-600 text-white shadow-md sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto flex justify-between items-center px-4 py-3">
-      <a href="/tg-id/" class="text-xl font-bold">Terminal Gabut</a>
-      <div class="flex items-center space-x-6">
-        <a href="/tg-id/" class="hover:text-gray-200">Home</a>
-        <a href="/tg-id/tg-fitur" class="hover:text-gray-200">Fitur</a>
-        <a href="/tg-id/tg-chat" class="hover:text-gray-200">Chat</a>
-        <a href="/tg-id/tg-melankolis" class="font-semibold underline">Melankolis</a>
-        <button id="darkToggle" class="bg-white text-blue-600 px-3 py-1 rounded-md text-sm font-semibold">🌙</button>
-      </div>
-    </div>
-  </nav>
-
-  <!-- HEADER -->
-  <header class="bg-blue-600 text-white text-center py-12">
-    <h1 class="text-3xl md:text-4xl font-bold">Terminal Melankolis</h1>
-    <p class="mt-2 text-lg">Kumpulan puisi pilihan</p>
+<body>
+  <header>
+    <h1>TG - Melankolis</h1>
+    <p>Kumpulan Puisi & Kata Hati</p>
   </header>
 
-  <!-- GRID PUISI -->
-  <main class="max-w-6xl mx-auto px-4 py-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+  <!-- Grid Puisi -->
+  <div class="container puisi-grid">
 
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">...</div>
-      <div class="isi text-sm leading-relaxed">
-        Engkau hangatkan embun pagi dengan berkah-Mu<br>
-        Engkau sejukkan terik mentari dengan rahmat-Mu<br>
-        Engkau lirihkan angin malam dengan kasih-Mu<br>
-        Gumuruh dalam hati tak henti menyebut nama-Mu
+    <div class="puisi-container">
+      <div class="judul">...</div>
+      <div class="isi">
+Engkau hangatkan embun pagi dengan berkah-Mu
+Engkau sejukkan terik mentari dengan rahmat-Mu
+Engkau lirihkan angin malam dengan kasih-Mu
+Gumuruh dalam hati tak henti menyebut nama-Mu
       </div>
     </div>
 
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">Merindu</div>
-      <div class="isi text-sm leading-relaxed">
-        Ku rapal di setiap nafasku.<br>
-        Bila perlu ku ikat pada jiwaku.<br>
-        Masihkah layak disebut pantas?<br>
-        Merindumu duhai Bagindaku bak rembulan menghias.
+    <div class="puisi-container">
+      <div class="judul">Merindu</div>
+      <div class="isi">
+Ku rapal di setiap nafasku.
+Bila perlu ku ikat pada jiwaku.
+Masihkah layak disebut pantas?
+Merindumu duhai Bagindaku bak rembulan menghias.
       </div>
     </div>
 
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">Semi~</div>
-      <div class="isi text-sm leading-relaxed">
-        Ego yang mengakar di benakmu<br>
-        Meragukan hadirku di dasar hatimu<br>
-        Seperti bibit yang perlahan tumbuh<br>
-        Menjadi sebab tunas-tunas rindu<br>
-        Kau hadirkan keindahan yang utuh<br>
-        Laksana bunga yang mekar—lalu…<br>
-        Gugur... dan layu
+    <div class="puisi-container">
+      <div class="judul">Semi~</div>
+      <div class="isi">
+Ego yang mengakar di benakmu
+Meragukan hadirku di dasar hatimu
+Seperti bibit yang perlahan tumbuh
+Menjadi sebab tunas-tunas rindu
+Kau hadirkan keindahan yang utuh
+Laksana bunga yang mekar—lalu…
+Gugur... dan layu
       </div>
     </div>
 
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">Angan</div>
-      <div class="isi text-sm leading-relaxed">
-        Hangat menemani tidurku<br>
-        Tidakkah beruntung diriku?<br>
-        Terlelap, memimpikan wajah indahmu<br>
-        Andaikan ini bukan sekadar anganku<br>
-        Mungkin telah tenang terpejam mataku
+    <div class="puisi-container">
+      <div class="judul">Angan</div>
+      <div class="isi">
+Hangat menemani tidurku
+Tidakkah beruntung diriku?
+Terlelap, memimpikan wajah indahmu
+Andaikan ini bukan sekadar anganku
+Mungkin telah tenang terpejam mataku
       </div>
     </div>
 
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">...</div>
-      <div class="isi text-sm leading-relaxed">
-        Tertawalah—barangkali itu bisa menutupi lukamu<br>
-        Jika menangis dapat menidurkan lelapmu<br>
-        Semoga mimpimu sehangat senyum masa kecilmu
+    <div class="puisi-container">
+      <div class="judul">...</div>
+      <div class="isi">
+Tertawalah—barangkali itu bisa menutupi lukamu
+Jika menangis dapat menidurkan lelapmu
+Semoga mimpimu sehangat senyum masa kecilmu
       </div>
     </div>
 
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">Sisifus</div>
-      <div class="isi text-sm leading-relaxed">
-        Sejauh mana kau berlarian?<br>
-        Sekuat apa kau bertahan?<br>
-        Sebesar apa kau berkorban?<br>
-        Jika semua kembali pada mula jalan.
+    <div class="puisi-container">
+      <div class="judul">Sisifus</div>
+      <div class="isi">
+Sejauh mana kau berlarian?
+Sekuat apa kau bertahan?
+Sebesar apa kau berkorban?
+Jika semua kembali pada mula jalan.
       </div>
     </div>
 
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">...</div>
-      <div class="isi text-sm leading-relaxed">
-        Jika rasa itu belum benar hilang,<br>
-        Mengapa tak pulang, lalu tinggal?
+    <div class="puisi-container">
+      <div class="judul">...</div>
+      <div class="isi">
+Jika rasa itu belum benar hilang,
+Mengapa tak pulang, lalu tinggal?
       </div>
     </div>
 
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">Debu</div>
-      <div class="isi text-sm leading-relaxed">
-        Terima kasih dan maafku sebelum pergi<br>
-        Langkahku sepi, namun bayangmu tetap ku bawa<br>
-        Candamu hadir di sela tangis dan sunyi<br>
-        Rasa yang dulu, kini kau bunuh tanpa suara<br><br>
-        Aku berharap kau kembali untuk mengisi<br>
-        Hati yang kini tak ingin lagi menyakiti<br>
-        Dan kupikir kau pun telah mengerti<br>
-        Tapi lagi, kau tiup aku—bagai debu pagi
+    <div class="puisi-container">
+      <div class="judul">Debu</div>
+      <div class="isi">
+Terima kasih dan maafku sebelum pergi
+Langkahku sepi, namun bayangmu tetap ku bawa
+Candamu hadir di sela tangis dan sunyi
+Rasa yang dulu, kini kau bunuh tanpa suara
+
+Aku berharap kau kembali untuk mengisi
+Hati yang kini tak ingin lagi menyakiti
+Dan kupikir kau pun telah mengerti
+Tapi lagi, kau tiup aku—bagai debu pagi
       </div>
     </div>
 
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">Sesal</div>
-      <div class="isi text-sm leading-relaxed">
-        Setelah semua luka yang ku berikan<br>
-        Setelah semua maaf yang ku lantunkan<br>
-        Setelah semua jejak yang ku tinggalkan<br>
-        Ku harap kau tegar dan dikuatkan
+    <div class="puisi-container">
+      <div class="judul">Sesal</div>
+      <div class="isi">
+Setelah semua luka yang ku berikan
+Setelah semua maaf yang ku lantunkan
+Setelah semua jejak yang ku tinggalkan
+Ku harap kau tegar dan dikuatkan
       </div>
     </div>
 
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">malam...</div>
-      <div class="isi text-sm leading-relaxed">
-        Akan kubisik dongeng Persia menjelang tidurmu<br>
-        Agar bahagia menyelinap dalam lelapmu
+    <div class="puisi-container">
+      <div class="judul">malam...</div>
+      <div class="isi">
+Akan kubisik dongeng Persia menjelang tidurmu
+Agar bahagia menyelinap dalam lelapmu
       </div>
     </div>
 
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">S.A.D.A.R.D.I.R.I</div>
-      <div class="isi text-sm leading-relaxed">
-        S-ekelebat rasa pun berlalu<br>
-        A-ngan tentang luka yang pilu<br>
-        D-alam kenangan tak tersatu<br>
-        A-ku hanyalah bayang waktu<br>
-        R-anah sunyi masa lalu<br><br>
-        D-iam menggigil dalam kalbu<br>
-        I-ngin sirna, tak menunggu<br>
-        R-elakan rindu yang semu<br>
-        I-khlas, meski tak bersatu
+    <div class="puisi-container">
+      <div class="judul">S.A.D.A.R.D.I.R.I</div>
+      <div class="isi">
+S-ekelebat rasa pun berlalu
+A-ngan tentang luka yang pilu
+D-alam kenangan tak tersatu
+A-ku hanyalah bayang waktu
+R-anah sunyi masa lalu
+
+D-iam menggigil dalam kalbu
+I-ngin sirna, tak menunggu
+R-elakan rindu yang semu
+I-khlas, meski tak bersatu
       </div>
     </div>
 
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">Ruang?</div>
-      <div class="isi text-sm leading-relaxed">
-        adakah bumi untuk ku berpijak?<br>
-        hanya seluas debu pun kau tolak<br>
-        aku angin yang tak sempat terbenak<br>
-        seperti suara gemuruh yang serak<br>
-        layu dan tak sanggup berteriak
+    <div class="puisi-container">
+      <div class="judul">Ruang?</div>
+      <div class="isi">
+adakah bumi untuk ku berpijak?
+hanya seluas debu pun kau tolak
+aku angin yang tak sempat terbenak
+seperti suara gemuruh yang serak
+layu dan tak sanggup berteriak
       </div>
     </div>
 
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">Hampa.</div>
-      <div class="isi text-sm leading-relaxed">
-        Lepas anganku terbang tanpa suara<br>
-        Seperti kabut menari di jurang duka<br>
-        Makna pun retak di cermin logika<br>
-        Menghantam karang di samudra kepala<br>
-        Tersisa hanya bayang tanpa nama
+    <div class="puisi-container">
+      <div class="judul">Hampa.</div>
+      <div class="isi">
+Lepas anganku terbang tanpa suara
+Seperti kabut menari di jurang duka
+Makna pun retak di cermin logika
+Menghantam karang di samudra kepala
+Tersisa hanya bayang tanpa nama
       </div>
     </div>
 
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">Kapan...</div>
-      <div class="isi text-sm leading-relaxed">
-        Ragu itu masih bersarang<br>
-        Di lorong sunyi yang bimbang<br>
-        Kau terbang, dalam kabut terang<br>
-        Menggantung harap, di ujung senang<br>
-        Hingga aku bertanya dalam diam... "kapan pulang?"
+    <div class="puisi-container">
+      <div class="judul">Kapan...</div>
+      <div class="isi">
+Ragu itu masih bersarang
+Di lorong sunyi yang bimbang
+Kau terbang, dalam kabut terang
+Menggantung harap, di ujung senang
+Hingga aku bertanya dalam diam... "kapan pulang?"
       </div>
     </div>
 
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">absrdsm</div>
-      <div class="isi text-sm leading-relaxed">
-        kekosongan mendorong ku ketepi jurang secara perlahan<br>
-        kegelisahan, kegundahan dan kebingungan membunuh perasaan<br>
-        melupakan semua tentang waktu yang selalu berjalan<br>
-        mempertanyakan semua tentang keindahan, kenikmatan, dan kebahagiaan<br>
-        seakan semua itu hanyalah omong kosong dan keabsurdan
+    <div class="puisi-container">
+      <div class="judul">absrdsm</div>
+      <div class="isi">
+kekosongan mendorong ku ketepi jurang secara perlahan
+kegelisahan, kegundahan dan kebingungan membunuh perasaan
+melupakan semua tentang waktu yang selalu berjalan
+mempertanyakan semua tentang keindahan, kenikmatan, dan kebahagiaan
+seakan semua itu hanyalah omong kosong dan keabsurdan
       </div>
     </div>
 
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">Fana...</div>
-      <div class="isi text-sm leading-relaxed">
-        Apa itu bahagia?<br>
-        Nyatakah, atau sekedar ilusi manja?<br>
-        Apakah ia hanya topeng luka<br>
-        Yang tersenyum dibalik duka?<br>
-        Ataukah ia mimpi yang sirna<br>
-        Saat hati tersadar dari fana?
+    <div class="puisi-container">
+      <div class="judul">Fana...</div>
+      <div class="isi">
+Apa itu bahagia?
+Nyatakah, atau sekedar ilusi manja?
+Apakah ia hanya topeng luka
+Yang tersenyum dibalik duka?
+Ataukah ia mimpi yang sirna
+Saat hati tersadar dari fana?
       </div>
     </div>
 
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">dilema</div>
-      <div class="isi text-sm leading-relaxed">
-        Kepulangan ku hanyut dalam bayang<br>
-        Tak semua arah membawa benar<br>
-        Langkah-langkah ku terdiam dan bimbing<br>
-        Cahaya pun tak selalu menyinar
+    <div class="puisi-container">
+      <div class="judul">dilema</div>
+      <div class="isi">
+Kepulangan ku hanyut dalam bayang
+Tak semua arah membawa benar
+Langkah-langkah ku terdiam dan bimbing
+Cahaya pun tak selalu menyinar
       </div>
     </div>
 
-    <!-- TEMPLATE PUISI BARU -->
-    <div class="puisi-container bg-white dark:bg-gray-800 shadow-md rounded-xl p-5">
-      <div class="judul font-semibold text-lg mb-2">Judul Baru</div>
-      <div class="isi text-sm leading-relaxed">
-        Tulis puisimu di sini...<br>
-        Baris kedua...<br>
-        Dan seterusnya...
-      </div>
-    </div>
+  </div>
 
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="bg-blue-600 text-white text-center py-6 mt-10">
-    <p>© 2025 Terminal Melankolis</p>
-    <p>Email: <a href="mailto:terminalmelankolis@example.com" class="underline">terminalmelankolis@example.com</a></p>
+  <footer>
+    &copy; 2025 Terminal Gabut - Melankolis
   </footer>
-
-  <!-- DARK MODE -->
-  <script>
-    const toggleBtn = document.getElementById("darkToggle");
-    toggleBtn.addEventListener("click", () => {
-      document.documentElement.classList.toggle("dark");
-    });
-  </script>
-
 </body>
 </html>
