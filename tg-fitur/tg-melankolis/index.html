@@ -3,17 +3,47 @@
 <head>  
   <meta charset="UTF-8">  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-  <title>Terminal Melankolis </title>  
-  <!-- Font judul: Playfair Display, font puisi: Georgia italic -->  
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">  
-  <style>  
+  <title>Terminal Gabut | Puisi Melankolis </title>  
+  <meta name="description" content="Kumpulan puisi puisi">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3b82f6">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+
+  <!-- NAVBAR -->
+
+<header class="bg-blue-600 text-white fixed top-0 left-0 w-full shadow-md z-50">
+<nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
+  <div>
+    <a href="../index.html">
+      <img src="IMG_20250825_090756-removebg-preview.png" alt="Terminal Gabut Logo" class="h-7 w-auto">
+    </a>
+  </div>
+
+    <ul class="hidden md:flex gap-6">
+      <li><a href="../index.html" class="hover:text-blue-200">Home</a></li>
+      <li><a href="#" class="hover:text-blue-200">Fitur</a></li>
+    </ul>
+    <button id="darkToggle" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
+      🌙
+    </button>
+   </nav>
+  </div>
+ </header>
+
+  <style>
     body {  
       font-family: 'Merriweather', serif;  
       background: #fefaf4; /* soft background */  
       color: #2c2c2c;  
       padding: 50px 20px;  
       line-height: 1.8;  
-    }  /* Kontainer puisi (judul + isi) */  
+    }
+/* Kontainer puisi (judul + isi) */  
 .puisi-container {  
   max-width: 700px;  
   margin: 30px auto;  
