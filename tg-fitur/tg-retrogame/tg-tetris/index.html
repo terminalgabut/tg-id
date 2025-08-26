@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="id">
+<!DOCTYPE html>
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -6,8 +7,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 flex flex-col min-h-screen">  <!-- NAVBAR -->  <header class="bg-blue-600 text-white fixed top-0 left-0 w-full shadow-md z-50">
-    <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
+<body class="bg-gray-100 flex flex-col min-h-screen">
+
+  <!-- ✅ NAVBAR -->
+  <header class="bg-blue-600 text-white fixed top-0 left-0 w-full shadow-md z-50">
+    <nav class="flex justify-between items-center px-6 py-4">
       <div>
         <a href="../index.html">
           <img src="IMG_20250825_090756-removebg-preview.png" alt="Terminal Gabut Logo" class="h-7 w-auto">
@@ -17,71 +21,236 @@
         <li><a href="../index.html" class="hover:text-blue-200">Home</a></li>
         <li><a href="#" class="hover:text-blue-200">Fitur</a></li>
       </ul>
-      <button id="darkToggle" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">🌙</button>
+      <button id="darkToggle" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
+        🌙
+      </button>
     </nav>
-  </header>  <!-- CONTAINER -->  <div class="chat-container w-11/12 max-w-3xl mx-auto flex flex-col bg-white rounded-xl shadow-md mt-24 overflow-hidden"><!-- HEADER: Score/Lines/Level -->
-<div class="header-container bg-blue-600 text-white flex justify-around p-4">
-  <div><strong>Score:</strong> <span id="score">0</span></div>
-  <div><strong>Lines:</strong> <span id="lines">0</span></div>
-  <div><strong>Level:</strong> <span id="level">1</span></div>
-</div>
+  </header>
 
-<!-- GAME AREA -->
-<div class="messages flex items-center justify-center bg-gray-50" style="height:480px">
-  <canvas id="board" width="240" height="480" class="bg-gray-900 rounded"></canvas>
-</div>
+  <!-- ✅ GAME CONTAINER -->
+  <div class="chat-container w-full max-w-4xl mx-auto mt-20 flex flex-col rounded-lg shadow-lg bg-white overflow-hidden">
+    
+    <!-- HEADER: Score, Lines, Level -->
+    <div class="header-container bg-blue-600 text-white flex justify-around p-3 text-center">
+      <div><h1 id="score">Score: 0</h1></div>
+      <div><h1 id="lines">Lines: 0</h1></div>
+      <div><h1 id="level">Level: 1</h1></div>
+    </div>
 
-<!-- GAMEPAD -->
-<div class="input-container flex flex-col items-center bg-white p-4 gap-3">
-  <div class="flex justify-center gap-6">
-    <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('left')">⬅️</button>
-    <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('rotate')">⬆️</button>
-    <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('drop')">⬇️</button>
-    <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('right')">➡️</button>
+    <!-- GAME CANVAS -->
+    <div class="messages flex justify-center items-center bg-gray-100">
+      <canvas id="tetris" width="240" height="400" class="bg-black rounded-lg"></canvas>
+    </div>
+
+    <!-- ✅ GAMEPAD -->
+    <div class="input-container grid grid-cols-3 gap-3 bg-white p-4">
+      <button onclick="moveLeft()">⬅️</button>
+      <button onclick="moveUp()">⬆️</button>
+      <button onclick="moveRight()">➡️</button>
+      <button onclick="rotate()">🔄 Rotate</button>
+      <button onclick="drop()">⬇️ Hard Drop</button>
+    </div>
   </div>
-  <div class="flex gap-6">
-    <button class="px-6 py-2 bg-blue-500 text-white rounded" onclick="togglePause()">⏯ Start/Pause</button>
-  </div>
-</div>
 
-  </div>  <footer class="text-center py-6 text-gray-500">© 2025 Terminal Gabut - Semua Hak Dilindungi</footer><script>
-const COLS=10,ROWS=20,BLOCK=24;
-const board=document.getElementById('board');
-const ctx=board.getContext('2d');
-let scoreEl=document.getElementById('score'),linesEl=document.getElementById('lines'),levelEl=document.getElementById('level');
-board.width=COLS*BLOCK;board.height=ROWS*BLOCK;
+  <!-- ✅ FOOTER -->
+  <footer class="text-center py-6 text-gray-500">
+    © 2025 Terminal Gabut - Semua Hak Dilindungi
+  </footer>
 
-function makeEmptyBoard(){return Array.from({length:ROWS},()=>Array(COLS).fill(0));}
-let grid=makeEmptyBoard();
-const SHAPES={I:[[1,1,1,1]],J:[[2,0,0],[2,2,2]],L:[[0,0,3],[3,3,3]],O:[[4,4],[4,4]],S:[[0,5,5],[5,5,0]],T:[[0,6,0],[6,6,6]],Z:[[7,7,0],[0,7,7]]};
-const COLORS=['','#00e5ff','#0066ff','#ff8c42','#ffd11a','#00d166','#b84dff','#ff3b3b'];
-const BAG=[];
-function nextPieceType(){if(BAG.length===0){const types=Object.keys(SHAPES).slice();for(let i=types.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[types[i],types[j]]=[types[j],types[i]]}BAG.push(...types);}return BAG.shift();}
-function cloneShape(m){return m.map(r=>r.slice());}
-function rotate(m){return m.map((r,i)=>r.map((_,j)=>m[m.length-1-j][i]));}
-class Piece{constructor(t){this.type=t;this.matrix=cloneShape(SHAPES[t]);this.row=0;this.col=Math.floor(COLS/2-this.matrix[0].length/2);}}
-let current=new Piece(nextPieceType());
-let next=new Piece(nextPieceType());
-function collide(g,p,rO=0,cO=0){const m=p.matrix;for(let r=0;r<m.length;r++)for(let c=0;c<m[r].length;c++)if(m[r][c]){const nr=p.row+r+rO,nc=p.col+c+cO;if(nr<0||nc<0||nc>=COLS||nr>=ROWS||g[nr][nc])return true;}return false;}
-function merge(g,p){const m=p.matrix;for(let r=0;r<m.length;r++)for(let c=0;c<m[r].length;c++)if(m[r][c])g[p.row+r][p.col+c]=m[r][c];}
-function clearLines(){let lines=0;for(let r=ROWS-1;r>=0;r--){if(grid[r].every(v=>v!==0)){grid.splice(r,1);grid.unshift(Array(COLS).fill(0));lines++;r++;}}return lines;}
-let score=0,lines=0,level=1,dropInterval=800;
-function updateScore(cleared){if(cleared>0){const pts=[0,40,100,300,1200];score+=pts[cleared]*level;lines+=cleared;level=Math.floor(lines/10)+1;dropInterval=Math.max(100,800-(level-1)*60);scoreEl.textContent=score;linesEl.textContent=lines;levelEl.textContent=level;}}
-function spawn(){current=next;next=new Piece(nextPieceType());current.row=0;current.col=Math.floor(COLS/2-current.matrix[0].length/2);if(collide(grid,current))gameOver();}
-function gameOver(){running=false;alert('Game Over! Score: '+score);}
-function hardDrop(){while(!collide(grid,current,1,0))current.row++;lockPiece();}
-function lockPiece(){merge(grid,current);const cleared=clearLines();updateScore(cleared);spawn();}
-function step(){if(!running)return;const now=Date.now();if(now-lastDrop>dropInterval){if(!collide(grid,current,1,0))current.row++;else lockPiece();lastDrop=now;}draw();requestAnimationFrame(step);}
-function drawCell(x,y,v){ctx.fillStyle=v?COLORS[v]:'#111827';ctx.fillRect(x*BLOCK+1,y*BLOCK+1,BLOCK-2,BLOCK-2);}
-function draw(){ctx.fillStyle='#111827';ctx.fillRect(0,0,board.width,board.height);for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)drawCell(c,r,grid[r][c]);const m=current.matrix;for(let r=0;r<m.length;r++)for(let c=0;c<m[r].length;c++)if(m[r][c])drawCell(current.col+c,current.row+r,m[r][c]);}
+  <!-- ✅ GAME SCRIPT -->
+  <script>
+    const canvas = document.getElementById("tetris");
+    const context = canvas.getContext("2d");
+    context.scale(20, 20);
 
-document.addEventListener('keydown',e=>{if(!running)return;if(e.key==='ArrowLeft')move('left');else if(e.key==='ArrowRight')move('right');else if(e.key==='ArrowUp')move('rotate');else if(e.key==='ArrowDown')move('drop');else if(e.key.toLowerCase()==='p')togglePause();});
+    const scoreEl = document.getElementById("score");
+    const linesEl = document.getElementById("lines");
+    const levelEl = document.getElementById("level");
 
-function move(action){if(!running)return; if(action==='left'){if(!collide(grid,current,0,-1))current.col--;}else if(action==='right'){if(!collide(grid,current,0,1))current.col++;}else if(action==='rotate'){const rotated=rotate(current.matrix);const old=current.matrix;current.matrix=rotated;if(collide(grid,current,0,0))current.matrix=old;}else if(action==='drop'){hardDrop();}draw();}
+    const arena = createMatrix(12, 20);
+    let dropCounter = 0;
+    let dropInterval = 1000;
+    let lastTime = 0;
+    let score = 0;
+    let lines = 0;
+    let level = 1;
 
-let running=true,lastDrop=Date.now();
-function togglePause(){running=!running; if(running){lastDrop=Date.now();step();}}
+    const player = {
+      pos: {x: 5, y: 0},
+      matrix: null,
+    };
 
-spawn();draw();step();
-</script></body>
+    const colors = [
+      null,
+      "#FF0D72",
+      "#0DC2FF",
+      "#0DFF72",
+      "#F538FF",
+      "#FF8E0D",
+      "#FFE138",
+      "#3877FF",
+    ];
+
+    function createMatrix(w, h) {
+      const matrix = [];
+      while (h--) matrix.push(new Array(w).fill(0));
+      return matrix;
+    }
+
+    function collide(arena, player) {
+      const m = player.matrix;
+      const o = player.pos;
+      for (let y = 0; y < m.length; ++y) {
+        for (let x = 0; x < m[y].length; ++x) {
+          if (m[y][x] !== 0 &&
+              (arena[y + o.y] &&
+              arena[y + o.y][x + o.x]) !== 0) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function merge(arena, player) {
+      player.matrix.forEach((row, y) => {
+        row.forEach((value, x) => {
+          if (value !== 0) {
+            arena[y + player.pos.y][x + player.pos.x] = value;
+          }
+        });
+      });
+    }
+
+    function playerDrop() {
+      player.pos.y++;
+      if (collide(arena, player)) {
+        player.pos.y--;
+        merge(arena, player);
+        playerReset();
+        arenaSweep();
+        updateScore();
+      }
+      dropCounter = 0;
+    }
+
+    function drop() {
+      while (!collide(arena, player)) {
+        player.pos.y++;
+      }
+      player.pos.y--;
+      merge(arena, player);
+      playerReset();
+      arenaSweep();
+      updateScore();
+      dropCounter = 0;
+    }
+
+    function moveLeft() {
+      player.pos.x--;
+      if (collide(arena, player)) player.pos.x++;
+    }
+
+    function moveRight() {
+      player.pos.x++;
+      if (collide(arena, player)) player.pos.x--;
+    }
+
+    function moveUp() {
+      player.pos.y--;
+      if (collide(arena, player)) player.pos.y++;
+    }
+
+    function rotate() {
+      const m = player.matrix;
+      for (let y = 0; y < m.length; ++y) {
+        for (let x = 0; x < y; ++x) {
+          [m[x][y], m[y][x]] = [m[y][x], m[x][y]];
+        }
+      }
+      m.forEach(row => row.reverse());
+      if (collide(arena, player)) {
+        player.pos.x++;
+        if (collide(arena, player)) player.pos.x -= 2;
+      }
+    }
+
+    function arenaSweep() {
+      outer: for (let y = arena.length - 1; y >= 0; --y) {
+        for (let x = 0; x < arena[y].length; ++x) {
+          if (arena[y][x] === 0) continue outer;
+        }
+        arena.splice(y, 1);
+        arena.unshift(new Array(arena[0].length).fill(0));
+        lines++;
+        score += 100;
+        if (lines % 10 === 0) {
+          level++;
+          dropInterval *= 0.9;
+        }
+      }
+    }
+
+    function drawMatrix(matrix, offset) {
+      matrix.forEach((row, y) => {
+        row.forEach((value, x) => {
+          if (value !== 0) {
+            context.fillStyle = colors[value];
+            context.fillRect(x + offset.x, y + offset.y, 1, 1);
+          }
+        });
+      });
+    }
+
+    function draw() {
+      context.fillStyle = "#000";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      drawMatrix(arena, {x:0, y:0});
+      drawMatrix(player.matrix, player.pos);
+    }
+
+    function playerReset() {
+      const pieces = "TJLOSZI";
+      player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
+      player.pos.y = 0;
+      player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
+      if (collide(arena, player)) {
+        arena.forEach(row => row.fill(0));
+        score = 0;
+        lines = 0;
+        level = 1;
+        dropInterval = 1000;
+      }
+    }
+
+    function createPiece(type) {
+      if (type === "T") return [[0,0,0],[1,1,1],[0,1,0]];
+      if (type === "O") return [[2,2],[2,2]];
+      if (type === "L") return [[0,3,0],[0,3,0],[0,3,3]];
+      if (type === "J") return [[0,4,0],[0,4,0],[4,4,0]];
+      if (type === "I") return [[0,5,0,0],[0,5,0,0],[0,5,0,0],[0,5,0,0]];
+      if (type === "S") return [[0,6,6],[6,6,0],[0,0,0]];
+      if (type === "Z") return [[7,7,0],[0,7,7],[0,0,0]];
+    }
+
+    function update(time = 0) {
+      const deltaTime = time - lastTime;
+      lastTime = time;
+      dropCounter += deltaTime;
+      if (dropCounter > dropInterval) playerDrop();
+      draw();
+      requestAnimationFrame(update);
+    }
+
+    function updateScore() {
+      scoreEl.innerText = "Score: " + score;
+      linesEl.innerText = "Lines: " + lines;
+      levelEl.innerText = "Level: " + level;
+    }
+
+    playerReset();
+    updateScore();
+    update();
+  </script>
+</body>
 </html>
