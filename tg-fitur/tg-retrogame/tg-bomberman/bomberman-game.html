@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="id">  
+<head>  
+  <meta charset="UTF-8">  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+  <title>Bomberman | Terminal Gabut</title>  
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">  
+  <script src="https://cdn.tailwindcss.com"></script>  
+</head>  
+<body class="bg-gray-100 flex flex-col min-h-screen">  
+
+  <!-- NAVBAR -->  
+  <header class="bg-blue-600 text-white fixed top-0 left-0 w-full shadow-md z-50">  
+    <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">  
+      <div>  
+        <a href="../index.html">  
+          <img src="IMG_20250825_090756-removebg-preview.png" alt="Terminal Gabut Logo" class="h-7 w-auto">  
+        </a>  
+      </div>  
+      <ul class="hidden md:flex gap-6">  
+        <li><a href="../index.html" class="hover:text-blue-200">Home</a></li>  
+        <li><a href="#" class="hover:text-blue-200">Fitur</a></li>  
+      </ul>  
+      <button id="darkToggle" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">🌙</button>  
+    </nav>  
+  </header>  
+
+  <!-- CONTAINER -->  
+  <div class="chat-container w-11/12 max-w-4xl mx-auto flex flex-col bg-white rounded-xl shadow-md mt-24 overflow-hidden">
+
+    <!-- HEADER: Score/Lives/Level -->  
+    <div class="header-container bg-blue-600 text-white flex justify-around p-4">  
+      <div><strong>Score:</strong> <span id="scoreValue">0</span></div>  
+      <div><strong>Lives:</strong> <span id="livesValue">3</span></div>  
+      <div><strong>Bombs:</strong> <span id="bombsValue">1</span></div>  
+      <div><strong>Level:</strong> <span id="levelValue">1</span></div>  
+    </div>  
+
+    <!-- GAME AREA - Made taller as per orange lines in image -->
+    <div class="messages flex items-center justify-center bg-gray-50" style="height:600px">  
+      <canvas id="gameCanvas" class="bg-green-900 rounded border-2 border-blue-500"></canvas>  
+    </div>  
+
+    <!-- GAMEPAD -->  
+    <div class="input-container flex flex-col items-center bg-white p-4 gap-3">  
+      <div class="flex justify-center gap-6">  
+        <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="movePlayer('left')">&#9664;</button>  
+        <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="movePlayer('up')">&#9650;</button>  
+        <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="movePlayer('down')">&#9660;</button>  
+        <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="movePlayer('right')">&#9654;</button>  
+      </div>  
+      <div class="flex gap-6">  
+        <button class="px-6 py-2 bg-green-500 text-white rounded" onclick="startGame()" id="startBtn">▶ Start Game</button>  
+        <button class="px-6 py-2 bg-orange-500 text-white rounded" onclick="dropBomb()" id="bombBtn">💣 Bomb</button>  
+        <button class="px-6 py-2 bg-red-500 text-white rounded" onclick="toggleMute()" id="muteBtn">🔊 Sound</button>  
+      </div>  
+    </div>  
+
+  </div>  
+
+  <footer class="text-center py-6 text-gray-500">© 2025 Terminal Gabut - Semua Hak Dilindungi</footer>
+
+<script>
+// Audio Manager
+class AudioManager {
+    constructor() {
+        this.sounds = {};
+        this.isMuted = false;
+        this.isInitialized = false;
+        this.loadSounds();
+    }
+    
+    async loadSounds() {
+        try {
+            this.sounds.bomb = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBz2X3fPLcSMFL4DN8tiJOQcadLrr2Z5MEAxPqeHxtWUrBjiOz/LFXwgAWA==');
+            this.sounds.explosion = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBz2X3fPLcSMFL4DN8tiJOQcadLrr2Z5MEAxPqeHxtWUrBjiOz/LFXwgAWA==');
+            this.sounds.powerup = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBz2X3fPLcSMFL4DN8tiJOQcadLrr2Z5MEAxPqeHxtWUrBjiOz/LFXwgAWA==');
+            this.sounds.death = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBz2X3fPLcSMFL4DN8tiJOQcadLrr2Z5MEAxPqeHxtWUrBjiOz/LFXwgAWA==');
+            
+            Object.values(this.sounds).forEach(sound => {
+                sound.volume = 0.4;
+            });
+        } catch (error) {
+            console.warn('Audio loading failed:', error);
+        }
+    }
+    
+    async initAudio() {
+        if (this.isInitialized) return;
+        this.isInitialized = true;
+    }
+    
+    playSound(soundName) {
+        if (this.isMuted || !this.sounds[soundName] || !this.isInitialized) return;
+        
+        try {
+            const sound = this.sounds[soundName].cloneNode();
+            sound.volume = this.sounds[soundName].volume;
+            sound.play().catch(e => console.warn(`Sound ${soundName} play failed:`, e));
+        } catch (error) {
+            console.warn(`Error playing sound ${soundName}:`, error);
+        }
+    }
+    
+    toggleMute() {
+        this.isMuted = !this.isMuted;
+        return this.isMuted;
+    }
+}
+
+// Controls Manager
+class ControlsManager {
+    constructor() {
+        this.keys = {};
+        this.direction = null;
+        this.setupKeyboardControls();
+    }
+    
+    setupKeyboardControls() {
+        document.addEventListener('keydown', (e) => {
+            this.keys[e.code] = true;
+            
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+                e.preventDefault();
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            this.keys[e.code] = false;
+        });
+    }
+    
+    getDirection() {
+        if (this.keys['ArrowUp'] || this.keys['KeyW']) return 'up';
+        if (this.keys['ArrowDown'] || this.keys['KeyS']) return 'down';
+        if (this.keys['ArrowLeft'] || this.keys['KeyA']) return 'left';
+        if (this.keys['ArrowRight'] || this.keys['KeyD']) return 'right';
+        
+        if (this.direction) {
+            const temp = this.direction;
+            this.direction = null;
+            return temp;
+        }
+        
+        return null;
+    }
+    
+    setDirection(dir) {
+        this.direction = dir;
+    }
+    
+    isBombKeyPressed() {
+        return this.keys['Space'];
+    }
+}
+
+// Game Map
+class GameMap {
+    constructor(width, height) {
+        this.width = width;
+        this.height = height;
+        this.cellSize = 25;
+        this.map = [];
+        this.destructibleBlocks = [];
+        this.powerUps = [];
+        this.enemies = [];
+        
+        this.generateMap();
+    }
+    
+    generateMap() {
+        // Create Bomberman-style map
+        const mapPattern = [
+            "#####################",
+            "#P   B B   B B B   E#",
+            "# # # # # # # # # # #",
+            "#   B   B   B   B   #",
+            "# # # # # # # # # # #",
+            "#B   B   B   B   B #",
+            "# # # # # # # # # # #",
+            "#   B   B   B   B   #",
+            "# # # # # # # # # # #",
+            "#B   B   B   B   B #",
+            "# # # # # # # # # # #",
+            "#   B   B   B   B   #",
+            "# # # # # # # # # # #",
+            "#B   B   B   B   B #",
+            "# # # # # # # # # # #",
+            "#   B   B   B   B   #",
+            "# # # # # # # # # # #",
+            "#E   B B   B B B   E#",
+            "#####################"
+        ];
+        
+        this.height = mapPattern.length;
+        this.width = mapPattern[0].length;
+        this.map = [];
+        this.destructibleBlocks = [];
+        this.powerUps = [];
+        this.enemies = [];
+        
+        for (let y = 0; y < this.height; y++) {
+            this.map[y] = [];
+            for (let x = 0; x < this.width; x++) {
+                const char = mapPattern[y][x];
+                
+                if (char === '#') {
+                    this.map[y][x] = 'wall';
+                } else if (char === 'B') {
+                    this.map[y][x] = 'destructible';
+                    this.destructibleBlocks.push({x, y, destroyed: false});
+                } else if (char === 'P') {
+                    this.map[y][x] = 'empty';
+                    this.playerStartX = x;
+                    this.playerStartY = y;
+                } else if (char === 'E') {
+                    this.map[y][x] = 'empty';
+                    this.enemies.push({x, y, direction: 'right', alive: true});
+                } else {
+                    this.map[y][x] = 'empty';
+                }
+            }
+        }
+    }
+    
+    isWall(x, y) {
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height) return true;
+        return this.map[y][x] === 'wall';
+    }
+    
+    isDestructible(x, y) {
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height) return false;
+        return this.map[y][x] === 'destructible';
+    }
+    
+    canMoveTo(x, y) {
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height) return false;
+        return this.map[y][x] === 'empty';
+    }
+    
+    destroyBlock(x, y) {
+        if (this.isDestructible(x, y)) {
+            this.map[y][x] = 'empty';
+            const block = this.destructibleBlocks.find(b => b.x === x && b.y === y);
+            if (block) {
+                block.destroyed = true;
+                
+                // Random chance to spawn power-up
+                if (Math.random() < 0.3) {
+                    const powerUpType = Math.random() < 0.5 ? 'bomb' : 'fire';
+                    this.powerUps.push({x, y, type: powerUpType, collected: false});
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    collectPowerUp(x, y) {
+        const powerUp = this.powerUps.find(p => p.x === x && p.y === y && !p.collected);
+        if (powerUp) {
+            powerUp.collected = true;
+            return powerUp.type;
+        }
+        return null;
+    }
+    
+    render(ctx) {
+        ctx.save();
+        
+        // Draw floor
+        ctx.fillStyle = '#228B22';
+        ctx.fillRect(0, 0, this.width * this.cellSize, this.height * this.cellSize);
+        
+        // Draw walls
+        ctx.fillStyle = '#8B4513';
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                if (this.map[y][x] === 'wall') {
+                    ctx.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+                    ctx.strokeStyle = '#654321';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+                }
+            }
+        }
+        
+        // Draw destructible blocks
+        ctx.fillStyle = '#DEB887';
+        this.destructibleBlocks.forEach(block => {
+            if (!block.destroyed) {
+                ctx.fillRect(block.x * this.cellSize, block.y * this.cellSize, this.cellSize, this.cellSize);
+                ctx.strokeStyle = '#CD853F';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(block.x * this.cellSize, block.y * this.cellSize, this.cellSize, this.cellSize);
+            }
+        });
+        
+        // Draw power-ups
+        this.powerUps.forEach(powerUp => {
+            if (!powerUp.collected) {
+                const centerX = powerUp.x * this.cellSize + this.cellSize / 2;
+                const centerY = powerUp.y * this.cellSize + this.cellSize / 2;
+                
+                if (powerUp.type === 'bomb') {
+                    ctx.fillStyle = '#FFD700';
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#000';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('💣', centerX, centerY + 4);
+                } else if (powerUp.type === 'fire') {
+                    ctx.fillStyle = '#FF4500';
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('🔥', centerX, centerY + 4);
+                }
+            }
+        });
+        
+        ctx.restore();
+    }
+    
+    getPlayerStartPosition() {
+        return { x: this.playerStartX, y: this.playerStartY };
+    }
+}
+
+// Bomb class
+class Bomb {
+    constructor(x, y, range = 2) {
+        this.x = x;
+        this.y = y;
+        this.range = range;
+        this.timer = 3000; // 3 seconds
+        this.exploded = false;
+    }
+    
+    update(deltaTime) {
+        this.timer -= deltaTime;
+        if (this.timer <= 0 && !this.exploded) {
+            this.exploded = true;
+            return true; // Signal to explode
+        }
+        return false;
+    }
+    
+    render(ctx, cellSize) {
+        const centerX = this.x * cellSize + cellSize / 2;
+        const centerY = this.y * cellSize + cellSize / 2;
+        
+        // Flash effect based on timer
+        const flash = this.timer < 1000 ? Math.floor(this.timer / 100) % 2 : 0;
+        ctx.fillStyle = flash ? '#FF6347' : '#FF0000';
+        
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 10, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.fillStyle = '#000';
+        ctx.font = '16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('💣', centerX, centerY + 4);
+    }
+}
+
+// Explosion class
+class Explosion {
+    constructor(x, y, range = 2) {
+        this.x = x;
+        this.y = y;
+        this.range = range;
+        this.timer = 800; // 0.8 seconds
+        this.cells = this.calculateExplosionCells();
+    }
+    
+    calculateExplosionCells() {
+        const cells = [];
+        cells.push({x: this.x, y: this.y}); // Center
+        
+        // Four directions
+        const directions = [{x:0,y:-1}, {x:0,y:1}, {x:-1,y:0}, {x:1,y:0}];
+        
+        directions.forEach(dir => {
+            for (let i = 1; i <= this.range; i++) {
+                const newX = this.x + dir.x * i;
+                const newY = this.y + dir.y * i;
+                cells.push({x: newX, y: newY});
+            }
+        });
+        
+        return cells;
+    }
+    
+    update(deltaTime) {
+        this.timer -= deltaTime;
+        return this.timer <= 0;
+    }
+    
+    render(ctx, cellSize) {
+        ctx.save();
+        ctx.fillStyle = '#FFA500';
+        
+        this.cells.forEach(cell => {
+            const flash = Math.floor(this.timer / 100) % 2;
+            ctx.fillStyle = flash ? '#FF6347' : '#FFA500';
+            
+            ctx.fillRect(
+                cell.x * cellSize + 2,
+                cell.y * cellSize + 2,
+                cellSize - 4,
+                cellSize - 4
+            );
+        });
+        
+        ctx.restore();
+    }
+    
+    isInExplosion(x, y) {
+        return this.cells.some(cell => cell.x === x && cell.y === y);
+    }
+}
+
+// Player class
+class Player {
+    constructor(x, y, gameMap) {
+        this.x = x;
+        this.y = y;
+        this.gameMap = gameMap;
+        this.maxBombs = 1;
+        this.bombRange = 2;
+        this.speed = 150; // milliseconds between moves
+        this.lastMoveTime = 0;
+        this.alive = true;
+    }
+    
+    update(deltaTime) {
+        const currentTime = Date.now();
+        if (currentTime - this.lastMoveTime < this.speed) return;
+        
+        const direction = controlsManager.getDirection();
+        if (direction && this.canMove(direction)) {
+            this.move(direction);
+            this.lastMoveTime = currentTime;
+        }
+    }
+    
+    canMove(direction) {
+        const newPos = this.getNextPosition(direction);
+        return this.gameMap.canMoveTo(newPos.x, newPos.y);
+    }
+    
+    getNextPosition(direction) {
+        let newX = this.x;
+        let newY = this.y;
+        
+        switch (direction) {
+            case 'up': newY -= 1; break;
+            case 'down': newY += 1; break;
+            case 'left': newX -= 1; break;
+            case 'right': newX += 1; break;
+        }
+        
+        return { x: newX, y: newY };
+    }
+    
+    move(direction) {
+        const newPos = this.getNextPosition(direction);
+        this.x = newPos.x;
+        this.y = newPos.y;
+        
+        // Check for power-ups
+        const powerUp = this.gameMap.collectPowerUp(this.x, this.y);
+        if (powerUp) {
+            audioManager.playSound('powerup');
+            if (powerUp === 'bomb') {
+                this.maxBombs++;
+            } else if (powerUp === 'fire') {
+                this.bombRange++;
+            }
+            return powerUp;
+        }
+        
+        return null;
+    }
+    
+    render(ctx, cellSize) {
+        if (!this.alive) return;
+        
+        const centerX = this.x * cellSize + cellSize / 2;
+        const centerY = this.y * cellSize + cellSize / 2;
+        
+        // Draw player (Bomberman)
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 10, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.fillStyle = '#000';
+        ctx.font = '18px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('🤖', centerX, centerY + 6);
+    }
+    
+    getPosition() {
+        return { x: this.x, y: this.y };
+    }
+}
+
+// Enemy class
+class Enemy {
+    constructor(x, y, gameMap) {
+        this.x = x;
+        this.y = y;
+        this.gameMap = gameMap;
+        this.direction = 'right';
+        this.speed = 300; // milliseconds between moves
+        this.lastMoveTime = 0;
+        this.alive = true;
+    }
+    
+    update(deltaTime) {
+        if (!this.alive) return;
+        
+        const currentTime = Date.now();
+        if (currentTime - this.lastMoveTime < this.speed) return;
+        
+        this.updateAI();
+        this.lastMoveTime = currentTime;
+    }
+    
+    updateAI() {
+        const directions = ['up', 'down', 'left', 'right'];
+        let validDirections = directions.filter(dir => this.canMove(dir));
+        
+        // Remove opposite direction to avoid back-and-forth
+        const opposite = {
+            'up': 'down', 'down': 'up',
+            'left': 'right', 'right': 'left'
+        };
+        validDirections = validDirections.filter(dir => dir !== opposite[this.direction]);
+        
+        if (validDirections.length === 0) {
+            // If stuck, allow opposite direction
+            validDirections = directions.filter(dir => this.canMove(dir));
+        }
+        
+        if (validDirections.length > 0) {
+            // Continue in current direction if possible, otherwise pick random
+            if (validDirections.includes(this.direction)) {
+                this.move(this.direction);
+            } else {
+                this.direction = validDirections[Math.floor(Math.random() * validDirections.length)];
+                this.move(this.direction);
+            }
+        }
+    }
+    
+    canMove(direction) {
+        const newPos = this.getNextPosition(direction);
+        return this.gameMap.canMoveTo(newPos.x, newPos.y);
+    }
+    
+    getNextPosition(direction) {
+        let newX = this.x;
+        let newY = this.y;
+        
+        switch (direction) {
+            case 'up': newY -= 1; break;
+            case 'down': newY += 1; break;
+            case 'left': newX -= 1; break;
+            case 'right': newX += 1; break;
+        }
+        
+        return { x: newX, y: newY };
+    }
+    
+    move(direction) {
+        const newPos = this.getNextPosition(direction);
+        this.x = newPos.x;
+        this.y = newPos.y;
+        this.direction = direction;
+    }
+    
+    render(ctx, cellSize) {
+        if (!this.alive) return;
+        
+        const centerX = this.x * cellSize + cellSize / 2;
+        const centerY = this.y * cellSize + cellSize / 2;
+        
+        // Draw enemy
+        ctx.fillStyle = '#FF1493';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 10, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.fillStyle = '#000';
+        ctx.font = '18px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('👾', centerX, centerY + 6);
+    }
+    
+    getPosition() {
+        return { x: this.x, y: this.y };
+    }
+}
+
+// Main Game class
+class BombermanGame {
+    constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        
+        this.state = 'start';
+        this.score = 0;
+        this.lives = 3;
+        this.level = 1;
+        
+        this.gameMap = new GameMap(21, 19);
+        this.player = null;
+        this.enemies = [];
+        this.bombs = [];
+        this.explosions = [];
+        
+        this.lastTime = 0;
+        this.gameLoop = this.gameLoop.bind(this);
+        
+        this.setupCanvas();
+        this.initializeGame();
+    }
+    
+    setupCanvas() {
+        this.canvas.width = this.gameMap.width * this.gameMap.cellSize;
+        this.canvas.height = this.gameMap.height * this.gameMap.cellSize;
+        
+        this.resizeCanvas();
+        window.addEventListener('resize', () => this.resizeCanvas());
+    }
+    
+    resizeCanvas() {
+        const container = this.canvas.parentElement;
+        const containerWidth = container.clientWidth;
+        const containerHeight = 600; // Made taller as requested
+        
+        const scaleX = containerWidth / this.canvas.width;
+        const scaleY = containerHeight / this.canvas.height;
+        const scale = Math.min(scaleX, scaleY, 1);
+        
+        this.canvas.style.width = (this.canvas.width * scale) + 'px';
+        this.canvas.style.height = (this.canvas.height * scale) + 'px';
+    }
+    
+    initializeGame() {
+        const startPos = this.gameMap.getPlayerStartPosition();
+        this.player = new Player(startPos.x, startPos.y, this.gameMap);
+        
+        this.enemies = [];
+        this.gameMap.enemies.forEach(enemyData => {
+            this.enemies.push(new Enemy(enemyData.x, enemyData.y, this.gameMap));
+        });
+    }
+    
+    async startGame() {
+        await audioManager.initAudio();
+        
+        this.state = 'playing';
+        this.lastTime = performance.now();
+        requestAnimationFrame(this.gameLoop);
+    }
+    
+    gameLoop(currentTime) {
+        if (this.state !== 'playing') return;
+        
+        const deltaTime = currentTime - this.lastTime;
+        this.lastTime = currentTime;
+        
+        this.update(deltaTime);
+        this.render();
+        
+        requestAnimationFrame(this.gameLoop);
+    }
+    
+    update(deltaTime) {
+        // Update player
+        const powerUp = this.player.update(deltaTime);
+        if (powerUp) {
+            this.updateBombsDisplay();
+        }
+        
+        // Update enemies
+        this.enemies.forEach(enemy => enemy.update(deltaTime));
+        
+        // Update bombs
+        this.bombs.forEach((bomb, index) => {
+            if (bomb.update(deltaTime)) {
+                this.explodeBomb(bomb);
+                this.bombs.splice(index, 1);
+            }
+        });
+        
+        // Update explosions
+        this.explosions.forEach((explosion, index) => {
+            if (explosion.update(deltaTime)) {
+                this.explosions.splice(index, 1);
+            }
+        });
+        
+        // Check collisions
+        this.checkCollisions();
+        
+        // Check win condition
+        if (this.enemies.filter(e => e.alive).length === 0) {
+            this.nextLevel();
+        }
+    }
+    
+    explodeBomb(bomb) {
+        audioManager.playSound('explosion');
+        const explosion = new Explosion(bomb.x, bomb.y, bomb.range);
+        this.explosions.push(explosion);
+        
+        // Destroy blocks in explosion range
+        explosion.cells.forEach(cell => {
+            if (this.gameMap.destroyBlock(cell.x, cell.y)) {
+                this.score += 10;
+                this.updateScoreDisplay();
+            }
+        });
+    }
+    
+    checkCollisions() {
+        const playerPos = this.player.getPosition();
+        
+        // Check player vs enemies
+        this.enemies.forEach(enemy => {
+            if (enemy.alive) {
+                const enemyPos = enemy.getPosition();
+                if (playerPos.x === enemyPos.x && playerPos.y === enemyPos.y) {
+                    this.loseLife();
+                }
+            }
+        });
+        
+        // Check explosions
+        this.explosions.forEach(explosion => {
+            // Player vs explosion
+            if (explosion.isInExplosion(playerPos.x, playerPos.y)) {
+                this.loseLife();
+            }
+            
+            // Enemies vs explosion
+            this.enemies.forEach(enemy => {
+                if (enemy.alive) {
+                    const enemyPos = enemy.getPosition();
+                    if (explosion.isInExplosion(enemyPos.x, enemyPos.y)) {
+                        enemy.alive = false;
+                        this.score += 100;
+                        this.updateScoreDisplay();
+                    }
+                }
+            });
+        });
+    }
+    
+    dropBomb() {
+        if (this.state !== 'playing' || !this.player.alive) return;
+        if (this.bombs.length >= this.player.maxBombs) return;
+        
+        const playerPos = this.player.getPosition();
+        
+        // Check if there's already a bomb at this position
+        const existingBomb = this.bombs.find(b => b.x === playerPos.x && b.y === playerPos.y);
+        if (existingBomb) return;
+        
+        audioManager.playSound('bomb');
+        const bomb = new Bomb(playerPos.x, playerPos.y, this.player.bombRange);
+        this.bombs.push(bomb);
+    }
+    
+    loseLife() {
+        if (!this.player.alive) return;
+        
+        this.lives--;
+        this.player.alive = false;
+        audioManager.playSound('death');
+        this.updateLivesDisplay();
+        
+        if (this.lives <= 0) {
+            this.gameOver();
+        } else {
+            // Respawn player after delay
+            setTimeout(() => {
+                const startPos = this.gameMap.getPlayerStartPosition();
+                this.player.x = startPos.x;
+                this.player.y = startPos.y;
+                this.player.alive = true;
+            }, 2000);
+        }
+    }
+    
+    nextLevel() {
+        this.level++;
+        this.score += 500;
+        this.updateLevelDisplay();
+        this.updateScoreDisplay();
+        
+        // Reset game with new level
+        this.gameMap = new GameMap(21, 19);
+        this.initializeGame();
+        this.bombs = [];
+        this.explosions = [];
+    }
+    
+    gameOver() {
+        this.state = 'gameOver';
+        alert('Game Over! Final Score: ' + this.score);
+    }
+    
+    resetGame() {
+        this.state = 'start';
+        this.score = 0;
+        this.lives = 3;
+        this.level = 1;
+        
+        this.gameMap = new GameMap(21, 19);
+        this.initializeGame();
+        this.bombs = [];
+        this.explosions = [];
+        
+        this.updateScoreDisplay();
+        this.updateLivesDisplay();
+        this.updateLevelDisplay();
+        this.updateBombsDisplay();
+    }
+    
+    updateScoreDisplay() {
+        document.getElementById('scoreValue').textContent = this.score;
+    }
+    
+    updateLivesDisplay() {
+        document.getElementById('livesValue').textContent = this.lives;
+    }
+    
+    updateLevelDisplay() {
+        document.getElementById('levelValue').textContent = this.level;
+    }
+    
+    updateBombsDisplay() {
+        document.getElementById('bombsValue').textContent = this.player ? this.player.maxBombs : 1;
+    }
+    
+    render() {
+        // Clear canvas
+        this.ctx.fillStyle = '#228B22';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // Render game map
+        this.gameMap.render(this.ctx);
+        
+        // Render bombs
+        this.bombs.forEach(bomb => bomb.render(this.ctx, this.gameMap.cellSize));
+        
+        // Render explosions
+        this.explosions.forEach(explosion => explosion.render(this.ctx, this.gameMap.cellSize));
+        
+        // Render player
+        if (this.player) {
+            this.player.render(this.ctx, this.gameMap.cellSize);
+        }
+        
+        // Render enemies
+        this.enemies.forEach(enemy => enemy.render(this.ctx, this.gameMap.cellSize));
+    }
+}
+
+// Global instances
+const audioManager = new AudioManager();
+const controlsManager = new ControlsManager();
+let game = null;
+
+// Control functions
+function movePlayer(direction) {
+    if (game && game.state === 'playing') {
+        controlsManager.setDirection(direction);
+    }
+}
+
+function dropBomb() {
+    if (game && game.state === 'playing') {
+        game.dropBomb();
+    }
+}
+
+function startGame() {
+    if (!game) {
+        game = new BombermanGame();
+    }
+    
+    if (game.state === 'start' || game.state === 'gameOver') {
+        game.resetGame();
+        game.startGame();
+        document.getElementById('startBtn').textContent = '⏸ Pause';
+    } else if (game.state === 'playing') {
+        game.state = 'paused';
+        document.getElementById('startBtn').textContent = '▶ Resume';
+    } else if (game.state === 'paused') {
+        game.state = 'playing';
+        game.lastTime = performance.now();
+        requestAnimationFrame(game.gameLoop);
+        document.getElementById('startBtn').textContent = '⏸ Pause';
+    }
+}
+
+function toggleMute() {
+    const isMuted = audioManager.toggleMute();
+    document.getElementById('muteBtn').textContent = isMuted ? '🔇 Sound' : '🔊 Sound';
+}
+
+// Keyboard controls
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') movePlayer('left');
+    else if (e.key === 'ArrowRight') movePlayer('right');
+    else if (e.key === 'ArrowUp') movePlayer('up');
+    else if (e.key === 'ArrowDown') movePlayer('down');
+    else if (e.key === ' ') {
+        e.preventDefault();
+        dropBomb();
+    } else if (e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        startGame();
+    }
+});
+
+// Initialize game when page loads
+window.addEventListener('load', () => {
+    game = new BombermanGame();
+});
+</script>
+</body>
+</html>
