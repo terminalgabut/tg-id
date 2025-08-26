@@ -1,0 +1,163 @@
+<!doctype html>
+
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Terminal Gabut | Retro Blocks</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, Arial; background:#f9fafb; }
+    canvas { image-rendering: pixelated; }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen">
+  <!-- NAVBAR -->
+  <header class="bg-white shadow flex items-center justify-between px-6 py-3">
+    <div class="font-bold text-lg">Terminal Gabut Logo</div>
+    <nav class="flex items-center gap-6">
+      <a href="#" class="hover:text-blue-600">Home</a>
+      <a href="#" class="hover:text-blue-600">Fitur</a>
+    </nav>
+    <div class="text-xl">🌙</div>
+  </header>  <!-- HEADER: Score/Lines/Level -->  <div class="header-container bg-blue-600 text-white flex justify-around p-4">
+    <div><strong>Score:</strong> <span id="score">0</span></div>
+    <div><strong>Lines:</strong> <span id="lines">0</span></div>
+    <div><strong>Level:</strong> <span id="level">1</span></div>
+  </div>  <!-- GAME AREA -->  <main class="messages flex items-center justify-center bg-gray-50 flex-1">
+    <canvas id="board" width="240" height="480" class="bg-gray-900 rounded"></canvas>
+  </main>  <!-- GAMEPAD -->  <div class="input-container flex flex-col items-center bg-white p-4 gap-3">
+    <div class="flex justify-center gap-6">
+      <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('left')">⬅️</button>
+      <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('up')">⬆️</button>
+      <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('rotate')">⟳</button>
+      <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('drop')">⬇️</button>
+      <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('right')">➡️</button>
+    </div>
+    <div class="flex gap-6">
+      <button class="px-6 py-2 bg-blue-500 text-white rounded" onclick="togglePause()">⏯ Start/Pause</button>
+      <button class="px-6 py-2 bg-red-500 text-white rounded" onclick="restart()">🔄 Restart</button>
+    </div>
+  </div>  <footer class="bg-gray-100 text-center py-3 text-sm text-gray-600">© 2025 Terminal Gabut - Semua Hak Dilindungi</footer>  <script>
+    // --- Simple Tetris core logic ---
+    const COLS = 10, ROWS = 20, BLOCK = 24;
+    const canvas = document.getElementById('board');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const linesEl = document.getElementById('lines');
+    const levelEl = document.getElementById('level');
+
+    let grid, current, score, lines, level;
+    let dropCounter, dropInterval, lastTime, paused, gameOver;
+
+    const SHAPES = {
+      I:[[1,1,1,1]], J:[[1,0,0],[1,1,1]], L:[[0,0,1],[1,1,1]],
+      O:[[1,1],[1,1]], S:[[0,1,1],[1,1,0]], T:[[0,1,0],[1,1,1]], Z:[[1,1,0],[0,1,1]]
+    };
+    const COLORS = {I:'#26c6da',J:'#7c4dff',L:'#ffb74d',O:'#fdd835',S:'#66bb6a',T:'#ef5350',Z:'#42a5f5'};
+
+    function createMatrix(w,h){
+      return Array.from({length:h},()=>Array(w).fill(0));
+    }
+
+    function draw(){
+      ctx.fillStyle = '#111827';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      drawMatrix(grid,{x:0,y:0});
+      if(current) drawMatrix(current.matrix,{x:current.x,y:current.y},current.type);
+    }
+
+    function drawMatrix(matrix, offset, type){
+      ctx.fillStyle = COLORS[type] || '#ccc';
+      for(let y=0;y<matrix.length;y++){
+        for(let x=0;x<matrix[y].length;x++){
+          if(matrix[y][x]){
+            ctx.fillRect((x+offset.x)*BLOCK,(y+offset.y)*BLOCK,BLOCK-1,BLOCK-1);
+          }
+        }
+      }
+    }
+
+    function collide(grid, piece){
+      for(let y=0;y<piece.matrix.length;y++){
+        for(let x=0;x<piece.matrix[y].length;x++){
+          if(piece.matrix[y][x] && (grid[y+piece.y] && grid[y+piece.y][x+piece.x])!==0){
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function merge(grid,piece){
+      piece.matrix.forEach((row,y)=>{
+        row.forEach((val,x)=>{ if(val) grid[y+piece.y][x+piece.x]=piece.type; })
+      });
+    }
+
+    function rotate(m){
+      return m[0].map((_,i)=>m.map(row=>row[i]).reverse());
+    }
+
+    function sweep(){
+      let rowCount=1;
+      outer: for(let y=grid.length-1;y>=0;y--){
+        for(let x=0;x<grid[y].length;x++) if(!grid[y][x]) continue outer;
+        grid.splice(y,1);
+        grid.unshift(Array(COLS).fill(0));
+        lines += rowCount; score += rowCount*100; rowCount*=2;
+        if(lines % 10===0) level++;
+      }
+      scoreEl.textContent=score; linesEl.textContent=lines; levelEl.textContent=level;
+    }
+
+    function spawn(){
+      const types=Object.keys(SHAPES);
+      const t=types[Math.floor(Math.random()*types.length)];
+      current={matrix:SHAPES[t].map(r=>r.slice()),type:t,x:(COLS>>1)-2,y:0};
+      if(collide(grid,current)) gameOver=true;
+    }
+
+    function drop(){
+      current.y++;
+      if(collide(grid,current)){
+        current.y--;
+        merge(grid,current);
+        sweep();
+        spawn();
+      }
+      dropCounter=0;
+    }
+
+    function move(dir){
+      if(gameOver) return;
+      if(dir==='left'){current.x--; if(collide(grid,current)) current.x++;}
+      if(dir==='right'){current.x++; if(collide(grid,current)) current.x--;}
+      if(dir==='down'||dir==='drop'){while(!collide(grid,{...current,y:current.y+1})) current.y++; drop();}
+      if(dir==='rotate'){let m=rotate(current.matrix);let prev=current.matrix;current.matrix=m;if(collide(grid,current)) current.matrix=prev;}
+      if(dir==='up'){current.y--; if(collide(grid,current)) current.y++;}
+      draw();
+    }
+
+    function update(time=0){
+      if(paused||gameOver) return draw();
+      const delta=time-lastTime; lastTime=time; dropCounter+=delta;
+      if(dropCounter>dropInterval){ drop(); }
+      draw();
+      requestAnimationFrame(update);
+    }
+
+    function togglePause(){ paused=!paused; if(!paused) requestAnimationFrame(update); }
+    function restart(){ init(); }
+
+    function init(){
+      grid=createMatrix(COLS,ROWS);
+      score=0; lines=0; level=1;
+      scoreEl.textContent=0; linesEl.textContent=0; levelEl.textContent=1;
+      dropCounter=0; dropInterval=700; lastTime=0; paused=false; gameOver=false;
+      spawn(); requestAnimationFrame(update);
+    }
+
+    init();
+  </script></body>
+</html>
