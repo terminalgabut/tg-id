@@ -34,13 +34,13 @@
 <!-- GAMEPAD -->
 <div class="input-container flex flex-col items-center bg-white p-4 gap-3">
   <div class="flex justify-center gap-6">
-    <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('left')">◀️</button>
-    <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('rotate')">🔁</button>
-    <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('drop')">🔽</button>
-    <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('right')">▶️</button>
+    <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('left')">&#9664;</button>
+    <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('rotate')">&#8635;</button>
+    <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('drop')">&#9660;</button>
+    <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('right')">&#9654;</button>
   </div>
   <div class="flex gap-6">
-    <button class="px-6 py-2 bg-blue-500 text-white rounded" onclick="togglePause()">⏯️ Start/Pause</button>
+    <button class="px-6 py-2 bg-blue-500 text-white rounded" onclick="togglePause()">&#10073; &#9654; Start/Pause</button>
   </div>
 </div>
 
@@ -75,13 +75,49 @@ function step(){if(!running)return;const now=Date.now();if(now-lastDrop>dropInte
 function drawCell(x,y,v){ctx.fillStyle=v?COLORS[v]:'#111827';ctx.fillRect(x*BLOCK+1,y*BLOCK+1,BLOCK-2,BLOCK-2);}
 function draw(){ctx.fillStyle='#111827';ctx.fillRect(0,0,board.width,board.height);for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)drawCell(c,r,grid[r][c]);const m=current.matrix;for(let r=0;r<m.length;r++)for(let c=0;c<m[r].length;c++)if(m[r][c])drawCell(current.col+c,current.row+r,m[r][c]);}
 
-document.addEventListener('keydown',e=>{if(!running)return;if(e.key==='ArrowLeft')move('left');else if(e.key==='ArrowRight')move('right');else if(e.key==='ArrowUp')move('rotate');else if(e.key==='ArrowDown')move('drop');else if(e.key.toLowerCase()==='p')togglePause();});
+document.addEventListener('keydown', e => {
+  if(!running) return;
+  if(e.key === 'ArrowLeft') move('left');
+  else if(e.key === 'ArrowRight') move('right');
+  else if(e.key === 'ArrowDown') move('drop');
+  else if(e.key.toLowerCase() === 'p') togglePause();
+});
 
-function move(action){if(!running)return; if(action==='left'){if(!collide(grid,current,0,-1))current.col--;}else if(action==='right'){if(!collide(grid,current,0,1))current.col++;}else if(action==='rotate'){const rotated=rotate(current.matrix);const old=current.matrix;current.matrix=rotated;if(collide(grid,current,0,0))current.matrix=old;}else if(action==='drop'){hardDrop();}draw();}
+function move(action){
+  if(!running) return;
+  if(action === 'left'){
+    if(!collide(grid,current,0,-1)) current.col--;
+  } else if(action === 'right'){
+    if(!collide(grid,current,0,1)) current.col++;
+  } else if(action === 'rotate'){
+    const old = current.matrix;
+    const rotated = rotate(current.matrix);
+    current.matrix = rotated;
+    if(collide(grid,current,0,0)){
+      let kicked = false;
+      for(let offset of [-1,1,-2,2]){
+        current.col += offset;
+        if(!collide(grid,current,0,0)){ kicked = true; break; }
+        current.col -= offset;
+      }
+      if(!kicked) current.matrix = old;
+    }
+  } else if(action === 'drop'){
+    hardDrop();
+  }
+  draw();
+}
 
-let running=true,lastDrop=Date.now();
-function togglePause(){running=!running; if(running){lastDrop=Date.now();step();}}
+let running = true, lastDrop = Date.now();
+function togglePause(){
+  running = !running;
+  if(running){
+    lastDrop = Date.now();
+    step();
+  }
+}
 
-spawn();draw();step();
-</script></body>
+spawn(); draw(); step();
+</script>
+</body>
 </html>
