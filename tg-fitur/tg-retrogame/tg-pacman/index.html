@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="id">  
+<head>  
+  <meta charset="UTF-8">  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+  <title>Pac-Man | Terminal Gabut</title>  
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">  
+  <script src="https://cdn.tailwindcss.com"></script>  
+</head>  
+<body class="bg-gray-100 flex flex-col min-h-screen">  
+
+  <!-- NAVBAR -->  
+  <header class="bg-blue-600 text-white fixed top-0 left-0 w-full shadow-md z-50">  
+    <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">  
+      <div>  
+        <a href="../index.html">  
+          <img src="IMG_20250825_090756-removebg-preview.png" alt="Terminal Gabut Logo" class="h-7 w-auto">  
+        </a>  
+      </div>  
+      <ul class="hidden md:flex gap-6">  
+        <li><a href="../index.html" class="hover:text-blue-200">Home</a></li>  
+        <li><a href="#" class="hover:text-blue-200">Fitur</a></li>  
+      </ul>  
+      <button id="darkToggle" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">🌙</button>  
+    </nav>  
+  </header>  
+
+  <!-- CONTAINER -->  
+  <div class="chat-container w-11/12 max-w-3xl mx-auto flex flex-col bg-white rounded-xl shadow-md mt-24 overflow-hidden">
+
+    <!-- HEADER: Score/Lives/Level -->  
+    <div class="header-container bg-blue-600 text-white flex justify-around p-4">  
+      <div><strong>Score:</strong> <span id="scoreValue">0</span></div>  
+      <div><strong>Lives:</strong> <span id="livesValue">3</span></div>  
+      <div><strong>Level:</strong> <span id="levelValue">1</span></div>  
+    </div>  
+
+    <!-- GAME AREA -->  
+    <div class="messages flex items-center justify-center bg-gray-50" style="height:480px">  
+      <canvas id="gameCanvas" class="bg-black rounded border-2 border-blue-500"></canvas>  
+    </div>  
+
+    <!-- GAMEPAD -->  
+    <div class="input-container flex flex-col items-center bg-white p-4 gap-3">  
+      <div class="flex justify-center gap-6">  
+        <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="movePlayer('left')">&#9664;</button>  
+        <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="movePlayer('up')">&#9650;</button>  
+        <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="movePlayer('down')">&#9660;</button>  
+        <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="movePlayer('right')">&#9654;</button>  
+      </div>  
+      <div class="flex gap-6">  
+        <button class="px-6 py-2 bg-green-500 text-white rounded" onclick="startGame()" id="startBtn">▶ Start Game</button>  
+        <button class="px-6 py-2 bg-red-500 text-white rounded" onclick="toggleMute()" id="muteBtn">🔊 Sound</button>  
+      </div>  
+    </div>  
+
+  </div>  
+
+  <footer class="text-center py-6 text-gray-500">© 2025 Terminal Gabut - Semua Hak Dilindungi</footer>
+
+<script>
+// Audio Manager
+class AudioManager {
+    constructor() {
+        this.sounds = {};
+        this.backgroundMusic = null;
+        this.isMuted = false;
+        this.isInitialized = false;
+        this.loadSounds();
+    }
+    
+    async loadSounds() {
+        try {
+            this.sounds.eat = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBz2X3fPLcSMFL4DN8tiJOQcadLrr2Z5MEAxPqeHxtWUrBjiOz/LFXwgAWA==');
+            this.sounds.powerPellet = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBz2X3fPLcSMFL4DN8tiJOQcadLrr2Z5MEAxPqeHxtWUrBjiOz/LFXwgAWA==');
+            this.sounds.death = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBz2X3fPLcSMFL4DN8tiJOQcadLrr2Z5MEAxPqeHxtWUrBjiOz/LFXwgAWA==');
+            
+            Object.values(this.sounds).forEach(sound => {
+                sound.volume = 0.3;
+            });
+        } catch (error) {
+            console.warn('Audio loading failed:', error);
+        }
+    }
+    
+    async initAudio() {
+        if (this.isInitialized) return;
+        this.isInitialized = true;
+    }
+    
+    playSound(soundName) {
+        if (this.isMuted || !this.sounds[soundName] || !this.isInitialized) return;
+        
+        try {
+            const sound = this.sounds[soundName].cloneNode();
+            sound.volume = this.sounds[soundName].volume;
+            sound.play().catch(e => console.warn(`Sound ${soundName} play failed:`, e));
+        } catch (error) {
+            console.warn(`Error playing sound ${soundName}:`, error);
+        }
+    }
+    
+    toggleMute() {
+        this.isMuted = !this.isMuted;
+        return this.isMuted;
+    }
+}
+
+// Controls Manager
+class ControlsManager {
+    constructor() {
+        this.keys = {};
+        this.direction = null;
+        this.setupKeyboardControls();
+    }
+    
+    setupKeyboardControls() {
+        document.addEventListener('keydown', (e) => {
+            this.keys[e.code] = true;
+            
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+                e.preventDefault();
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            this.keys[e.code] = false;
+        });
+    }
+    
+    getDirection() {
+        if (this.keys['ArrowUp'] || this.keys['KeyW']) return 'up';
+        if (this.keys['ArrowDown'] || this.keys['KeyS']) return 'down';
+        if (this.keys['ArrowLeft'] || this.keys['KeyA']) return 'left';
+        if (this.keys['ArrowRight'] || this.keys['KeyD']) return 'right';
+        
+        if (this.direction) {
+            const temp = this.direction;
+            this.direction = null;
+            return temp;
+        }
+        
+        return null;
+    }
+    
+    setDirection(dir) {
+        this.direction = dir;
+    }
+}
+
+// Maze
+class Maze {
+    constructor(width, height) {
+        this.width = width;
+        this.height = height;
+        this.cellSize = 20;
+        this.maze = [];
+        this.dots = [];
+        this.powerPellets = [];
+        this.totalDots = 0;
+        
+        this.generateMaze();
+    }
+    
+    generateMaze() {
+        const mazePattern = [
+            "############################",
+            "#............##............#",
+            "#.####.#####.##.#####.####.#",
+            "#O####.#####.##.#####.####O#",
+            "#..........................#",
+            "#.####.##.########.##.####.#",
+            "#......##....##....##......#",
+            "######.#####.##.#####.######",
+            "     #.##..........##.#     ",
+            "######.##.###  ###.##.######",
+            "#........#      #........#",
+            "######.##.########.##.######",
+            "     #.##..........##.#     ",
+            "######.##.########.##.######",
+            "#............##............#",
+            "#.####.#####.##.#####.####.#",
+            "#O..##................##..O#",
+            "###.##.##.########.##.##.###",
+            "#......##....##....##......#",
+            "#.##########.##.##########.#",
+            "#..........................#",
+            "############################"
+        ];
+        
+        this.height = mazePattern.length;
+        this.width = mazePattern[0].length;
+        this.maze = [];
+        this.dots = [];
+        this.powerPellets = [];
+        
+        for (let y = 0; y < this.height; y++) {
+            this.maze[y] = [];
+            for (let x = 0; x < this.width; x++) {
+                const char = mazePattern[y][x];
+                
+                if (char === '#') {
+                    this.maze[y][x] = 'wall';
+                } else if (char === '.') {
+                    this.maze[y][x] = 'empty';
+                    this.dots.push({x, y, eaten: false});
+                    this.totalDots++;
+                } else if (char === 'O') {
+                    this.maze[y][x] = 'empty';
+                    this.powerPellets.push({x, y, eaten: false});
+                } else {
+                    this.maze[y][x] = 'empty';
+                }
+            }
+        }
+    }
+    
+    isWall(x, y) {
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
+            return true;
+        }
+        return this.maze[y][x] === 'wall';
+    }
+    
+    canMoveTo(x, y) {
+        return !this.isWall(x, y);
+    }
+    
+    eatDot(x, y) {
+        const dot = this.dots.find(d => d.x === x && d.y === y && !d.eaten);
+        if (dot) {
+            dot.eaten = true;
+            return true;
+        }
+        return false;
+    }
+    
+    eatPowerPellet(x, y) {
+        const pellet = this.powerPellets.find(p => p.x === x && p.y === y && !p.eaten);
+        if (pellet) {
+            pellet.eaten = true;
+            return true;
+        }
+        return false;
+    }
+    
+    getRemainingDots() {
+        return this.dots.filter(d => !d.eaten).length;
+    }
+    
+    getPlayerStartPosition() {
+        return { x: 14, y: 15 };
+    }
+    
+    getGhostStartPositions() {
+        return [
+            { x: 13, y: 10 },
+            { x: 14, y: 10 },
+            { x: 15, y: 10 },
+            { x: 16, y: 10 }
+        ];
+    }
+    
+    render(ctx) {
+        ctx.save();
+        
+        // Draw walls
+        ctx.fillStyle = '#0000ff';
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                if (this.maze[y][x] === 'wall') {
+                    ctx.fillRect(
+                        x * this.cellSize,
+                        y * this.cellSize,
+                        this.cellSize,
+                        this.cellSize
+                    );
+                }
+            }
+        }
+        
+        // Draw dots
+        ctx.fillStyle = '#ffff00';
+        this.dots.forEach(dot => {
+            if (!dot.eaten) {
+                ctx.beginPath();
+                ctx.arc(
+                    dot.x * this.cellSize + this.cellSize / 2,
+                    dot.y * this.cellSize + this.cellSize / 2,
+                    2,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.fill();
+            }
+        });
+        
+        // Draw power pellets
+        ctx.fillStyle = '#ffff00';
+        this.powerPellets.forEach(pellet => {
+            if (!pellet.eaten) {
+                ctx.beginPath();
+                ctx.arc(
+                    pellet.x * this.cellSize + this.cellSize / 2,
+                    pellet.y * this.cellSize + this.cellSize / 2,
+                    6,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.fill();
+            }
+        });
+        
+        ctx.restore();
+    }
+    
+    reset() {
+        this.dots.forEach(dot => dot.eaten = false);
+        this.powerPellets.forEach(pellet => pellet.eaten = false);
+    }
+}
+
+// PacMan
+class PacMan {
+    constructor(x, y, maze) {
+        this.x = x;
+        this.y = y;
+        this.maze = maze;
+        this.direction = null;
+        this.nextDirection = null;
+        this.speed = 0.1;
+        this.mouthAngle = 0;
+        this.mouthSpeed = 0.3;
+        this.size = 8;
+        
+        this.animationFrame = 0;
+        this.lastMoveTime = 0;
+        this.moveDelay = 180;
+    }
+    
+    update(deltaTime) {
+        this.animatemouth(deltaTime);
+        
+        const currentTime = Date.now();
+        if (currentTime - this.lastMoveTime < this.moveDelay) {
+            return;
+        }
+        
+        const inputDirection = controlsManager.getDirection();
+        if (inputDirection) {
+            this.nextDirection = inputDirection;
+        }
+        
+        if (this.nextDirection && this.canMove(this.nextDirection)) {
+            this.direction = this.nextDirection;
+            this.nextDirection = null;
+        }
+        
+        if (this.direction && this.canMove(this.direction)) {
+            this.move(this.direction);
+            this.lastMoveTime = currentTime;
+        }
+    }
+    
+    canMove(direction) {
+        const newPos = this.getNextPosition(direction);
+        return this.maze.canMoveTo(newPos.x, newPos.y);
+    }
+    
+    getNextPosition(direction) {
+        let newX = this.x;
+        let newY = this.y;
+        
+        switch (direction) {
+            case 'up':
+                newY -= 1;
+                break;
+            case 'down':
+                newY += 1;
+                break;
+            case 'left':
+                newX -= 1;
+                break;
+            case 'right':
+                newX += 1;
+                break;
+        }
+        
+        if (newX < 0) newX = this.maze.width - 1;
+        if (newX >= this.maze.width) newX = 0;
+        
+        return { x: newX, y: newY };
+    }
+    
+    move(direction) {
+        const newPos = this.getNextPosition(direction);
+        this.x = newPos.x;
+        this.y = newPos.y;
+        
+        if (this.maze.eatDot(this.x, this.y)) {
+            audioManager.playSound('eat');
+            return 'dot';
+        }
+        
+        if (this.maze.eatPowerPellet(this.x, this.y)) {
+            audioManager.playSound('powerPellet');
+            return 'powerPellet';
+        }
+        
+        return null;
+    }
+    
+    animatemouth(deltaTime) {
+        this.mouthAngle += this.mouthSpeed * deltaTime;
+        if (this.mouthAngle > Math.PI / 2) {
+            this.mouthAngle = Math.PI / 2;
+            this.mouthSpeed = -this.mouthSpeed;
+        } else if (this.mouthAngle < 0) {
+            this.mouthAngle = 0;
+            this.mouthSpeed = -this.mouthSpeed;
+        }
+    }
+    
+    getRotation() {
+        switch (this.direction) {
+            case 'up':
+                return -Math.PI / 2;
+            case 'down':
+                return Math.PI / 2;
+            case 'left':
+                return Math.PI;
+            case 'right':
+                return 0;
+            default:
+                return 0;
+        }
+    }
+    
+    render(ctx) {
+        ctx.save();
+        
+        const pixelX = this.x * this.maze.cellSize + this.maze.cellSize / 2;
+        const pixelY = this.y * this.maze.cellSize + this.maze.cellSize / 2;
+        
+        ctx.translate(pixelX, pixelY);
+        ctx.rotate(this.getRotation());
+        
+        ctx.fillStyle = '#ffff00';
+        ctx.beginPath();
+        ctx.arc(0, 0, this.size, this.mouthAngle, Math.PI * 2 - this.mouthAngle);
+        ctx.lineTo(0, 0);
+        ctx.fill();
+        
+        ctx.strokeStyle = '#ffcc00';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        ctx.restore();
+    }
+    
+    reset(x, y) {
+        this.x = x;
+        this.y = y;
+        this.direction = null;
+        this.nextDirection = null;
+        this.mouthAngle = 0;
+        this.mouthSpeed = Math.abs(this.mouthSpeed);
+    }
+    
+    getGridPosition() {
+        return { x: this.x, y: this.y };
+    }
+}
+
+// Ghost
+class Ghost {
+    constructor(x, y, color, maze) {
+        this.x = x;
+        this.y = y;
+        this.startX = x;
+        this.startY = y;
+        this.color = color;
+        this.maze = maze;
+        this.direction = 'up';
+        this.speed = 0.08;
+        this.size = 8;
+        
+        this.mode = 'chase';
+        this.modeTimer = 0;
+        this.lastMoveTime = 0;
+        this.moveDelay = 220;
+        
+        this.animationFrame = 0;
+        this.vulnerable = false;
+        this.vulnerableTimer = 0;
+        this.vulnerableDuration = 10000;
+    }
+    
+    update(deltaTime, pacmanPos) {
+        this.modeTimer += deltaTime;
+        
+        if (this.vulnerable) {
+            this.vulnerableTimer -= deltaTime;
+            if (this.vulnerableTimer <= 0) {
+                this.vulnerable = false;
+            }
+        }
+        
+        const currentTime = Date.now();
+        if (currentTime - this.lastMoveTime < this.moveDelay) {
+            return;
+        }
+        
+        this.updateAI(pacmanPos);
+        this.lastMoveTime = currentTime;
+        
+        this.animationFrame += deltaTime * 0.01;
+    }
+    
+    updateAI(pacmanPos) {
+        const possibleDirections = this.getPossibleDirections();
+        
+        if (possibleDirections.length === 0) {
+            if (this.canMove(this.direction)) {
+                this.move(this.direction);
+            } else {
+                const allDirections = ['up', 'down', 'left', 'right'];
+                for (let dir of allDirections) {
+                    if (this.canMove(dir)) {
+                        this.move(dir);
+                        break;
+                    }
+                }
+            }
+            return;
+        }
+        
+        let bestDirection;
+        
+        if (this.vulnerable) {
+            bestDirection = this.getFleeDirection(possibleDirections, pacmanPos);
+        } else {
+            bestDirection = this.getChaseDirection(possibleDirections, pacmanPos);
+        }
+        
+        if (bestDirection && this.canMove(bestDirection)) {
+            this.move(bestDirection);
+        } else if (possibleDirections.length > 0) {
+            this.move(possibleDirections[0]);
+        }
+    }
+    
+    getPossibleDirections() {
+        const directions = ['up', 'down', 'left', 'right'];
+        const opposite = this.getOppositeDirection(this.direction);
+        
+        return directions.filter(dir => {
+            return dir !== opposite && this.canMove(dir);
+        });
+    }
+    
+    getOppositeDirection(direction) {
+        const opposites = {
+            'up': 'down',
+            'down': 'up',
+            'left': 'right',
+            'right': 'left'
+        };
+        return opposites[direction];
+    }
+    
+    getChaseDirection(directions, pacmanPos) {
+        if (directions.length === 0) return null;
+        
+        let bestDirection = directions[0];
+        let shortestDistance = Infinity;
+        
+        directions.forEach(dir => {
+            const nextPos = this.getNextPosition(dir);
+            const distance = this.getDistance(nextPos, pacmanPos);
+            
+            if (distance < shortestDistance) {
+                shortestDistance = distance;
+                bestDirection = dir;
+            }
+        });
+        
+        return bestDirection;
+    }
+    
+    getFleeDirection(directions, pacmanPos) {
+        if (directions.length === 0) return null;
+        
+        let bestDirection = directions[0];
+        let longestDistance = -1;
+        
+        directions.forEach(dir => {
+            const nextPos = this.getNextPosition(dir);
+            const distance = this.getDistance(nextPos, pacmanPos);
+            
+            if (distance > longestDistance) {
+                longestDistance = distance;
+                bestDirection = dir;
+            }
+        });
+        
+        return bestDirection;
+    }
+    
+    getDistance(pos1, pos2) {
+        const dx = pos1.x - pos2.x;
+        const dy = pos1.y - pos2.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+    
+    canMove(direction) {
+        const newPos = this.getNextPosition(direction);
+        return this.maze.canMoveTo(newPos.x, newPos.y);
+    }
+    
+    getNextPosition(direction) {
+        let newX = this.x;
+        let newY = this.y;
+        
+        switch (direction) {
+            case 'up':
+                newY -= 1;
+                break;
+            case 'down':
+                newY += 1;
+                break;
+            case 'left':
+                newX -= 1;
+                break;
+            case 'right':
+                newX += 1;
+                break;
+        }
+        
+        if (newX < 0) newX = this.maze.width - 1;
+        if (newX >= this.maze.width) newX = 0;
+        
+        return { x: newX, y: newY };
+    }
+    
+    move(direction) {
+        const newPos = this.getNextPosition(direction);
+        this.x = newPos.x;
+        this.y = newPos.y;
+        this.direction = direction;
+    }
+    
+    makeVulnerable() {
+        this.vulnerable = true;
+        this.vulnerableTimer = this.vulnerableDuration;
+    }
+    
+    isVulnerable() {
+        return this.vulnerable;
+    }
+    
+    kill() {
+        this.mode = 'dead';
+        this.vulnerable = false;
+        this.vulnerableTimer = 0;
+        
+        setTimeout(() => {
+            this.x = this.startX;
+            this.y = this.startY;
+            this.mode = 'chase';
+            this.direction = 'up';
+        }, 1000);
+    }
+    
+    render(ctx) {
+        ctx.save();
+        
+        const pixelX = this.x * this.maze.cellSize + this.maze.cellSize / 2;
+        const pixelY = this.y * this.maze.cellSize + this.maze.cellSize / 2;
+        
+        ctx.translate(pixelX, pixelY);
+        
+        if (this.vulnerable) {
+            const flashTime = this.vulnerableTimer < 3000;
+            const flash = flashTime && Math.floor(this.animationFrame * 10) % 2;
+            ctx.fillStyle = flash ? '#ffffff' : '#0000ff';
+        } else {
+            ctx.fillStyle = this.color;
+        }
+        
+        ctx.beginPath();
+        ctx.arc(0, -2, this.size, Math.PI, 0);
+        ctx.fillRect(-this.size, -2, this.size * 2, this.size + 2);
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.moveTo(-this.size, this.size);
+        for (let i = 0; i < 4; i++) {
+            const x = -this.size + (i * this.size / 2);
+            const y = this.size + Math.sin(this.animationFrame * 5 + i) * 2;
+            ctx.lineTo(x, y);
+        }
+        ctx.lineTo(this.size, this.size);
+        ctx.lineTo(this.size, -2);
+        ctx.fill();
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-3, -4, 2, 0, Math.PI * 2);
+        ctx.arc(3, -4, 2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        if (!this.vulnerable) {
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(-3, -4, 1, 0, Math.PI * 2);
+            ctx.arc(3, -4, 1, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        ctx.restore();
+    }
+    
+    reset() {
+        this.x = this.startX;
+        this.y = this.startY;
+        this.direction = 'up';
+        this.vulnerable = false;
+        this.vulnerableTimer = 0;
+        this.mode = 'chase';
+    }
+    
+    getGridPosition() {
+        return { x: this.x, y: this.y };
+    }
+}
+
+// Game
+class Game {
+    constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        
+        this.state = 'start';
+        this.score = 0;
+        this.lives = 3;
+        this.level = 1;
+        
+        this.maze = new Maze(28, 22);
+        this.pacman = null;
+        this.ghosts = [];
+        
+        this.lastTime = 0;
+        this.gameLoop = this.gameLoop.bind(this);
+        
+        this.powerPelletActive = false;
+        this.powerPelletTimer = 0;
+        this.powerPelletDuration = 10000;
+        
+        this.setupCanvas();
+        this.initializeGame();
+    }
+    
+    setupCanvas() {
+        this.canvas.width = this.maze.width * this.maze.cellSize;
+        this.canvas.height = this.maze.height * this.maze.cellSize;
+        
+        this.resizeCanvas();
+        window.addEventListener('resize', () => this.resizeCanvas());
+    }
+    
+    resizeCanvas() {
+        const container = this.canvas.parentElement;
+        const containerWidth = container.clientWidth;
+        const containerHeight = 480;
+        
+        const scaleX = containerWidth / this.canvas.width;
+        const scaleY = containerHeight / this.canvas.height;
+        const scale = Math.min(scaleX, scaleY, 1);
+        
+        this.canvas.style.width = (this.canvas.width * scale) + 'px';
+        this.canvas.style.height = (this.canvas.height * scale) + 'px';
+    }
+    
+    initializeGame() {
+        const startPos = this.maze.getPlayerStartPosition();
+        this.pacman = new PacMan(startPos.x, startPos.y, this.maze);
+        
+        const ghostPositions = this.maze.getGhostStartPositions();
+        const ghostColors = ['#ff0000', '#ffb8ff', '#00ffff', '#ffb852'];
+        
+        this.ghosts = ghostPositions.map((pos, index) => {
+            return new Ghost(pos.x, pos.y, ghostColors[index], this.maze);
+        });
+    }
+    
+    async startGame() {
+        await audioManager.initAudio();
+        
+        this.state = 'playing';
+        this.lastTime = performance.now();
+        requestAnimationFrame(this.gameLoop);
+    }
+    
+    gameLoop(currentTime) {
+        if (this.state !== 'playing') return;
+        
+        const deltaTime = currentTime - this.lastTime;
+        this.lastTime = currentTime;
+        
+        this.update(deltaTime);
+        this.render();
+        
+        requestAnimationFrame(this.gameLoop);
+    }
+    
+    update(deltaTime) {
+        const eatResult = this.pacman.update(deltaTime);
+        
+        if (eatResult === 'dot') {
+            this.score += 10;
+            this.updateScoreDisplay();
+            
+            if (this.maze.getRemainingDots() === 0) {
+                this.nextLevel();
+                return;
+            }
+        } else if (eatResult === 'powerPellet') {
+            this.score += 50;
+            this.activatePowerPellet();
+            this.updateScoreDisplay();
+        }
+        
+        if (this.powerPelletActive) {
+            this.powerPelletTimer -= deltaTime;
+            if (this.powerPelletTimer <= 0) {
+                this.deactivatePowerPellet();
+            }
+        }
+        
+        const pacmanPos = this.pacman.getGridPosition();
+        this.ghosts.forEach(ghost => {
+            if (ghost.mode !== 'dead') {
+                ghost.update(deltaTime, pacmanPos);
+                
+                if (ghost.x === pacmanPos.x && ghost.y === pacmanPos.y) {
+                    if (ghost.isVulnerable()) {
+                        this.score += 200;
+                        ghost.kill();
+                        audioManager.playSound('powerPellet');
+                        this.updateScoreDisplay();
+                    } else {
+                        this.loseLife();
+                    }
+                }
+            }
+        });
+    }
+    
+    activatePowerPellet() {
+        this.powerPelletActive = true;
+        this.powerPelletTimer = this.powerPelletDuration;
+        
+        this.ghosts.forEach(ghost => {
+            ghost.makeVulnerable();
+        });
+    }
+    
+    deactivatePowerPellet() {
+        this.powerPelletActive = false;
+        this.powerPelletTimer = 0;
+    }
+    
+    loseLife() {
+        this.lives--;
+        audioManager.playSound('death');
+        
+        if (this.lives <= 0) {
+            this.gameOver();
+        } else {
+            this.resetPositions();
+            this.updateLivesDisplay();
+        }
+    }
+    
+    nextLevel() {
+        this.level++;
+        this.maze.reset();
+        this.resetPositions();
+        this.deactivatePowerPellet();
+        this.updateLevelDisplay();
+        
+        this.ghosts.forEach(ghost => {
+            ghost.moveDelay = Math.max(ghost.moveDelay - 10, 100);
+        });
+    }
+    
+    resetPositions() {
+        const startPos = this.maze.getPlayerStartPosition();
+        this.pacman.reset(startPos.x, startPos.y);
+        
+        this.ghosts.forEach(ghost => {
+            ghost.reset();
+        });
+    }
+    
+    gameOver() {
+        this.state = 'gameOver';
+        alert('Game Over! Score: ' + this.score);
+    }
+    
+    resetGame() {
+        this.state = 'start';
+        this.score = 0;
+        this.lives = 3;
+        this.level = 1;
+        this.powerPelletActive = false;
+        this.powerPelletTimer = 0;
+        
+        this.maze.reset();
+        this.resetPositions();
+        
+        this.updateScoreDisplay();
+        this.updateLivesDisplay();
+        this.updateLevelDisplay();
+    }
+    
+    updateScoreDisplay() {
+        document.getElementById('scoreValue').textContent = this.score;
+    }
+    
+    updateLivesDisplay() {
+        document.getElementById('livesValue').textContent = this.lives;
+    }
+    
+    updateLevelDisplay() {
+        document.getElementById('levelValue').textContent = this.level;
+    }
+    
+    render() {
+        this.ctx.fillStyle = '#000000';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.maze.render(this.ctx);
+        this.pacman.render(this.ctx);
+        
+        this.ghosts.forEach(ghost => {
+            if (ghost.mode !== 'dead') {
+                ghost.render(this.ctx);
+            }
+        });
+        
+        if (this.powerPelletActive) {
+            this.renderPowerPelletEffect();
+        }
+    }
+    
+    renderPowerPelletEffect() {
+        this.ctx.save();
+        
+        const flashIntensity = Math.sin(this.powerPelletTimer * 0.01) * 0.5 + 0.5;
+        this.ctx.strokeStyle = `rgba(255, 255, 0, ${flashIntensity * 0.3})`;
+        this.ctx.lineWidth = 4;
+        this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.ctx.restore();
+    }
+}
+
+// Global instances
+const audioManager = new AudioManager();
+const controlsManager = new ControlsManager();
+let game = null;
+
+// Control functions
+function movePlayer(direction) {
+    if (game && game.state === 'playing') {
+        controlsManager.setDirection(direction);
+    }
+}
+
+function startGame() {
+    if (!game) {
+        game = new Game();
+    }
+    
+    if (game.state === 'start' || game.state === 'gameOver') {
+        game.resetGame();
+        game.startGame();
+        document.getElementById('startBtn').textContent = '⏸ Pause';
+    } else if (game.state === 'playing') {
+        game.state = 'paused';
+        document.getElementById('startBtn').textContent = '▶ Resume';
+    } else if (game.state === 'paused') {
+        game.state = 'playing';
+        game.lastTime = performance.now();
+        requestAnimationFrame(game.gameLoop);
+        document.getElementById('startBtn').textContent = '⏸ Pause';
+    }
+}
+
+function toggleMute() {
+    const isMuted = audioManager.toggleMute();
+    document.getElementById('muteBtn').textContent = isMuted ? '🔇 Sound' : '🔊 Sound';
+}
+
+// Keyboard controls
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') movePlayer('left');
+    else if (e.key === 'ArrowRight') movePlayer('right');
+    else if (e.key === 'ArrowUp') movePlayer('up');
+    else if (e.key === 'ArrowDown') movePlayer('down');
+    else if (e.key.toLowerCase() === 'p' || e.key === ' ') {
+        e.preventDefault();
+        startGame();
+    }
+});
+
+// Initialize game when page loads
+window.addEventListener('load', () => {
+    game = new Game();
+});
+</script>
+</body>
+</html>
