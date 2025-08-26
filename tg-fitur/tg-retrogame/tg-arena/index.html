@@ -1,12 +1,19 @@
-<!DOCTYPE html><html lang="id">  
+<!DOCTYPE html>
+<html lang="id">  
 <head>  
   <meta charset="UTF-8">  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-  <title>Arena Survival | Terminal Gabut</title>  
+  <title>Zuma | Terminal Gabut</title>  
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">  
   <script src="https://cdn.tailwindcss.com"></script>  
+  <style>
+    canvas { image-rendering: pixelated; }
+  </style>
 </head>  
-<body class="bg-gray-100 flex flex-col min-h-screen">    <!-- NAVBAR -->    <header class="bg-blue-600 text-white fixed top-0 left-0 w-full shadow-md z-50">  
+<body class="bg-gray-100 flex flex-col min-h-screen">  
+
+  <!-- NAVBAR -->  
+  <header class="bg-blue-600 text-white fixed top-0 left-0 w-full shadow-md z-50">  
     <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">  
       <div>  
         <a href="../index.html">  
@@ -19,238 +26,508 @@
       </ul>  
       <button id="darkToggle" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">🌙</button>  
     </nav>  
-  </header>    <!-- CONTAINER -->    <div class="chat-container w-11/12 max-w-4xl mx-auto flex flex-col bg-white rounded-xl shadow-md mt-24 overflow-hidden">  <!-- HEADER: Score/Lives/Wave/Power -->  
-<div class="header-container bg-blue-600 text-white flex justify-around p-4">  
-  <div><strong>Score:</strong> <span id="score">0</span></div>  
-  <div><strong>Lives:</strong> <span id="lives">3</span></div>  
-  <div><strong>Wave:</strong> <span id="wave">1</span></div>  
-  <div><strong>Power:</strong> <span id="power">1</span></div>  
-</div>  
+  </header>  
 
-<!-- GAME AREA -->
-<div class="messages flex items-center justify-center bg-gray-50" style="height:600px">  
-  <canvas id="c" class="bg-black rounded border-2 border-blue-500" width="800" height="420"></canvas>  
-</div>  
+  <!-- CONTAINER -->  
+  <div class="chat-container w-11/12 max-w-4xl mx-auto flex flex-col bg-white rounded-xl shadow-md mt-24 overflow-hidden">
 
-<!-- GAMEPAD -->  
-<div class="input-container flex flex-col items-center bg-white p-4 gap-3">  
-  <div class="flex justify-center gap-6">  
-    <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="keys['arrowleft']=true;setTimeout(()=>keys['arrowleft']=false,200)">&#9664;</button>  
-    <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="keys['arrowup']=true;setTimeout(()=>keys['arrowup']=false,200)">&#9650;</button>  
-    <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="keys['arrowdown']=true;setTimeout(()=>keys['arrowdown']=false,200)">&#9660;</button>  
-    <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="keys['arrowright']=true;setTimeout(()=>keys['arrowright']=false,200)">&#9654;</button>  
+    <!-- HEADER SCORE -->  
+    <div class="header-container bg-blue-600 text-white flex justify-around p-4">  
+      <div><strong>Score:</strong> <span id="scoreValue">0</span></div>  
+      <div><strong>High:</strong> <span id="highValue">0</span></div>  
+      <div><strong>Length:</strong> <span id="lengthValue">0</span></div>  
+      <div><strong>Speed:</strong> <span id="speedValue">1</span></div>  
+    </div>  
+
+    <!-- GAME AREA -->
+    <div class="messages flex items-center justify-center bg-gray-50" style="height:600px">  
+      <canvas id="gameCanvas" class="bg-black rounded border-2 border-blue-500"></canvas>  
+    </div>  
+
+    <!-- GAMEPAD -->
+    <div class="input-container flex flex-col items-center bg-white p-4 gap-3">  
+      <div class="flex justify-center gap-6">  
+        <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="movePlayer('left')">&#9664;</button>  
+        <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="movePlayer('up')">&#9650;</button>  
+        <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="movePlayer('down')">&#9660;</button>  
+        <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="movePlayer('right')">&#9654;</button>  
+      </div>  
+      <div class="flex gap-6">  
+        <button class="px-6 py-2 bg-green-500 text-white rounded" onclick="startGame()" id="startBtn">▶ Start Game</button>  
+        <button class="px-6 py-2 bg-yellow-500 text-white rounded" onclick="pauseGame()" id="pauseBtn">⏸ Pause</button>  
+        <button class="px-6 py-2 bg-red-500 text-white rounded" onclick="toggleMute()" id="muteBtn">🔊 Sound</button>  
+      </div>  
+      <p class="text-xs text-gray-500 mt-1">Kontrol: ◀▶ putar, ▲ tembak, ▼ tukar bola, S mulai/ulang, P jeda</p>
+    </div>  
+
   </div>  
-  <div class="flex gap-6">  
-    <button class="px-6 py-2 bg-green-500 text-white rounded" onclick="game.start()" id="startBtn">▶ Start Game</button>  
-    <button class="px-6 py-2 bg-orange-500 text-white rounded" onclick="game.playerAttack()">⚔️ Attack (Z)</button>  
-    <button class="px-6 py-2 bg-red-500 text-white rounded" onclick="game.playerDash()">💨 Skill (X)</button>  
-  </div>  
-</div>
 
-  </div>   
- <footer class="text-center py-6 text-gray-500">© 2025 Terminal Gabut - Semua Hak Dilindungi</footer>
+  <footer class="text-center py-6 text-gray-500">© 2025 Terminal Gabut - Semua Hak Dilindungi</footer>
 
 <script>
-// === Arena Survival pakai Sprite ===
-
-// Global
-window.keys = {};
-window.game = null;
-
-// Input
-window.addEventListener('keydown', e=>{
-  keys[e.key.toLowerCase()] = true;
-  if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) e.preventDefault();
-});
-window.addEventListener('keyup', e=>{ keys[e.key.toLowerCase()] = false; });
-
-// Utility
-function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
-function rnd(a,b){return Math.random()*(b-a)+a;}
-
-// Player
-class Player {
-  constructor(x,y){
-    this.x=x;this.y=y;
-    this.hp=3;this.power=1;
-    this.speed=200;
-    this.attackCooldown=0;this.dashCooldown=0;
-    this.inv=false;this.invTimer=0;
-    this.img=new Image();
-    this.img.src="hero.png"; // file hero.png
-    this.width=64;this.height=64;
+/* ====== Audio Manager ====== */
+class AudioManager {
+  constructor() {
+    this.sounds = {};
+    this.isMuted = false;
+    this.isInitialized = false;
+    this.loadSounds();
   }
-  update(dt){
-    let vx=0,vy=0;
-    if(keys['arrowleft']||keys['a']) vx=-1;
-    if(keys['arrowright']||keys['d']) vx=1;
-    if(keys['arrowup']||keys['w']) vy=-1;
-    if(keys['arrowdown']||keys['s']) vy=1;
-    if(vx||vy){
-      const len=Math.hypot(vx,vy)||1;vx/=len;vy/=len;
-      this.x+=vx*this.speed*dt;this.y+=vy*this.speed*dt;
-      this.x=clamp(this.x,0,c.width-this.width);
-      this.y=clamp(this.y,60,c.height-this.height);
-    }
-    if(this.attackCooldown>0)this.attackCooldown-=dt;
-    if(this.dashCooldown>0)this.dashCooldown-=dt;
-    if(this.invTimer>0){this.invTimer-=dt;if(this.invTimer<=0)this.inv=false;}
+  async loadSounds() {
+    try {
+      // placeholder short silent clips encoded as data URIs to avoid network calls
+      this.sounds.shoot = new Audio('data:audio/wav;base64,UklGRmYAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=');
+      this.sounds.pop = new Audio('data:audio/wav;base64,UklGRmYAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=');
+      this.sounds.fail = new Audio('data:audio/wav;base64,UklGRmYAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=');
+      Object.values(this.sounds).forEach(s => s.volume = 0.3);
+    } catch (e) { console.warn('Audio load fail', e); }
   }
-  render(ctx){
-    if(this.inv){ctx.globalAlpha=0.6;}
-    ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
-    ctx.globalAlpha=1;
+  async initAudio(){ if(this.isInitialized) return; this.isInitialized = true; }
+  playSound(name){
+    if(this.isMuted || !this.sounds[name] || !this.isInitialized) return;
+    try { const s = this.sounds[name].cloneNode(); s.volume = this.sounds[name].volume; s.play(); } catch(e){}
   }
-  attack(){
-    if(this.attackCooldown>0)return null;
-    this.attackCooldown=0.4;
-    return {x:this.x+this.width/2,y:this.y+this.height/2,range:60,damage:1+this.power};
-  }
-  dash(){
-    if(this.dashCooldown>0)return;
-    this.dashCooldown=2;
-    this.inv=true;this.invTimer=0.3;
-    if(keys['arrowleft']) this.x-=80;
-    if(keys['arrowright']) this.x+=80;
-  }
+  toggleMute(){ this.isMuted=!this.isMuted; return this.isMuted; }
 }
 
-// Enemy
-class Enemy {
-  constructor(side,y,hp,speed){
-    this.x=side==='left'? -60 : c.width+60;
-    this.y=y;this.hp=hp;this.speed=speed;this.alive=true;
-    this.img=new Image();this.img.src="enemy.png";
-    this.width=50;this.height=50;
-    this.dir = side==='left'?1:-1;
-  }
-  update(dt,player){
-    if(!this.alive)return;
-    this.x+=this.dir*this.speed*dt;
-    // arahkan ke player
-    if(player.x>this.x) this.x+=this.speed*dt*0.2;
-    if(player.x<this.x) this.x-=this.speed*dt*0.2;
-  }
-  render(ctx){
-    if(!this.alive)return;
-    ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
-  }
-}
-
-// Boss
-class Boss extends Enemy{
-  constructor(wave){
-    super('left',c.height-140,20+wave*10,80);
-    this.img=new Image();this.img.src="boss.png"; // opsional
-    this.width=100;this.height=100;
-    this.maxhp=this.hp;
-  }
-  render(ctx){
-    if(!this.alive)return;
-    ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
-  }
-}
-
-// Game
-class Game {
+/* ====== Controls Manager ====== */
+class ControlsManager {
   constructor(){
-    this.player=new Player(c.width/2,c.height-120);
-    this.enemies=[];this.boss=null;
-    this.wave=1;this.lives=3;this.score=0;
-    this.attackHits=[];this.lastTime=performance.now();
-    this.playing=false;
-  }
-  start(){if(this.playing)return;this.reset();this.playing=true;this.loop();}
-  reset(){this.player=new Player(c.width/2,c.height-120);
-    this.enemies=[];this.boss=null;this.wave=1;this.lives=3;this.score=0;updateHUD();}
-  loop(){
-    if(!this.playing)return;
-    const now=performance.now();const dt=(now-this.lastTime)/1000;this.lastTime=now;
-    this.update(dt);this.render();
-    requestAnimationFrame(()=>this.loop());
-  }
-  update(dt){
-    this.player.update(dt);
-    // spawn enemies
-    if(this.enemies.length<10 && !this.boss){
-      if(Math.random()<0.02){
-        const side=Math.random()<0.5?'left':'right';
-        this.enemies.push(new Enemy(side,c.height-120,2+this.wave,60+this.wave*5));
-      }
-    }
-    this.enemies.forEach(e=>e.update(dt,this.player));
-    // boss spawn
-    if(this.enemies.filter(e=>e.alive).length===0 && this.enemies.length>=10 && !this.boss){
-      this.boss=new Boss(this.wave);
-    }
-    if(this.boss) this.boss.update(dt,this.player);
-
-    // serangan
-    for(let i=this.attackHits.length-1;i>=0;i--){
-      const a=this.attackHits[i];a.t-=dt;
-      if(a.t<=0)this.attackHits.splice(i,1);
-      else{
-        this.enemies.forEach(en=>{
-          if(en.alive){
-            const d=Math.hypot(en.x-a.x,en.y-a.y);
-            if(d<a.range){en.hp-=a.damage;if(en.hp<=0){en.alive=false;this.score+=50;}}
-          }
-        });
-        if(this.boss && this.boss.alive){
-          const d=Math.hypot(this.boss.x-a.x,this.boss.y-a.y);
-          if(d<a.range){this.boss.hp-=a.damage;if(this.boss.hp<=0){this.score+=500;this.wave++;this.player.power++;this.boss=null;this.enemies=[];}}
-        }
-      }
-    }
-    updateHUD();
-  }
-  render(){
-    ctx.fillStyle="#000";ctx.fillRect(0,0,c.width,c.height);
-    // ground
-    ctx.fillStyle="#111";ctx.fillRect(0,c.height-40,c.width,40);
-    this.player.render(ctx);
-    this.enemies.forEach(e=>e.render(ctx));
-    if(this.boss) this.boss.render(ctx);
-    // boss HP bar
-    if(this.boss && this.boss.alive){
-      const bw=300,bh=14,x=(c.width-bw)/2,y=20;
-      ctx.fillStyle="#333";ctx.fillRect(x-2,y-2,bw+4,bh+4);
-      ctx.fillStyle="#111";ctx.fillRect(x,y,bw,bh);
-      ctx.fillStyle="#f00";ctx.fillRect(x,y,bw*(this.boss.hp/this.boss.maxhp),bh);
-    }
-    // slash effect
-    this.attackHits.forEach(a=>{
-      ctx.strokeStyle="rgba(255,0,0,0.6)";
-      ctx.lineWidth=6;
-      ctx.beginPath();
-      ctx.arc(a.x,a.y,a.range,0,Math.PI/2);
-      ctx.stroke();
+    this.keys = {};
+    this.direction = null;
+    document.addEventListener('keydown', e => {
+      this.keys[e.code] = true;
+      if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
     });
+    document.addEventListener('keyup', e => { this.keys[e.code] = false; });
   }
-  playerAttack(){
-    const atk=this.player.attack();
-    if(atk){this.attackHits.push({x:atk.x,y:atk.y,range:atk.range,damage:atk.damage,t:0.15});}
-  }
-  playerDash(){this.player.dash();}
+  getDirection(){ return null; }
+  setDirection(dir){ this.direction = dir; }
 }
 
-// Canvas & HUD
-const c=document.getElementById('c');const ctx=c.getContext('2d');
-function updateHUD(){
-  document.getElementById('score').textContent=game.score;
-  document.getElementById('lives').textContent=game.lives;
-  document.getElementById('wave').textContent=game.wave;
-  document.getElementById('power').textContent=game.player.power;
-}
-window.addEventListener('load',()=>{window.game=new Game();updateHUD();});
+/* ====== Utils ====== */
+function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+function dist(a,b){ const dx=a.x-b.x, dy=a.y-b.y; return Math.hypot(dx,dy); }
 
-// Keyboard attack/skill
-window.addEventListener('keydown',e=>{
-  if(e.key.toLowerCase()==='z'){game.playerAttack();}
-  if(e.key.toLowerCase()==='x'){game.playerDash();}
+/* ====== Zuma Game Class ====== */
+class ZumaGame {
+  constructor(){
+    this.canvas = document.getElementById('gameCanvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.state = 'start';
+    this.score = 0;
+    this.highScore = Number(localStorage.getItem('zumaHighScore')||0);
+    this.level = 1;
+    this.bestCombo = 0;
+
+    this.width = 800; 
+    this.height = 480;
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
+
+    this.resizeCanvas();
+    window.addEventListener('resize', () => this.resizeCanvas());
+
+    // Path berbentuk "S" horizontal
+    this.path = this.buildSPath();
+    this.marbles = [];           // bola di jalur: {t, color}
+    this.shots = [];             // peluru: {x,y,vx,vy,color}
+    this.colors = ['#e74c3c','#3498db','#f1c40f','#2ecc71','#9b59b6'];
+    this.radius = 12;
+    this.spacing = this.radius*2 - 2;
+    this.speed = 0.6 + this.level*0.05; // px per frame di path-index (bukan px layar—lihat penggunaan)
+    this.spawnGap = 0; // kontrol jarak saat spawn
+    this.maxPathIndex = this.path.length-1;
+    this.holeIndex = this.maxPathIndex - 10;
+
+    // Shooter
+    this.shooter = {
+      x: this.width/2, 
+      y: this.height - 60,
+      angle: -Math.PI/2, // ke atas
+      nextColor: this.randomColor()
+    };
+
+    this.lastTime = 0;
+    this.loop = this.loop.bind(this);
+
+    // Input keyboard
+    document.addEventListener('keydown', (e) => {
+      const k = e.key.toLowerCase();
+      if (k === 'arrowleft' || k === 'a') this.rotateShooter(-0.12);
+      if (k === 'arrowright' || k === 'd') this.rotateShooter(0.12);
+      if (k === 'arrowup' || k === 'w' || k === ' ') this.fire();
+      if (k === 'arrowdown' || k === 's') this.swap();
+      if (k === 'p') this.togglePause();
+      if (k === 's') { /* start handled by button too */ }
+    });
+
+    // Dark toggle (opsional)
+    document.getElementById('darkToggle').addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+    });
+
+    this.reset();
+  }
+
+  resizeCanvas(){
+    const container = this.canvas.parentElement;
+    const cw = container.clientWidth, ch = 600;
+    const sx = cw / this.canvas.width, sy = ch / this.canvas.height;
+    const scale = Math.min(sx, sy, 1);
+    this.canvas.style.width = (this.canvas.width*scale)+'px';
+    this.canvas.style.height = (this.canvas.height*scale)+'px';
+  }
+
+  buildSPath(){
+    // Bangun poin jalur sebagai "S" melewati layar dalam beberapa pita
+    const pts = [];
+    const margin = 60;
+    const rows = 6;
+    const stepY = (this.height - margin*2) / (rows-1);
+    const stepX = 18; // kepadatan titik
+    for(let r=0;r<rows;r++){
+      const y = margin + r*stepY;
+      if (r%2===0){
+        for(let x=margin;x<=this.width-margin;x+=stepX) pts.push({x,y});
+      } else {
+        for(let x=this.width-margin;x>=margin;x-=stepX) pts.push({x,y});
+      }
+    }
+    // Menuju lubang (ke tengah)
+    const hole = {x:this.width/2, y:this.height/2+20};
+    const last = pts[pts.length-1];
+    const addSegs = 60;
+    for(let i=1;i<=addSegs;i++){
+      const t=i/addSegs;
+      pts.push({x:last.x+(hole.x-last.x)*t, y:last.y+(hole.y-last.y)*t});
+    }
+    return pts;
+  }
+
+  reset(){
+    this.marbles = [];
+    this.shots = [];
+    this.score = 0;
+    this.level = 1;
+    this.bestCombo = 0;
+    this.speed = 0.6 + this.level*0.05;
+    // isi awal rantai
+    let t = -40; // mulai di luar layar (negatif index artifisial)
+    for(let i=0;i<50;i++){
+      this.marbles.push({ t, color: this.randomColor() });
+      t += this.spacing;
+    }
+    this.state = 'start';
+    this.updateUI();
+  }
+
+  start(){
+    this.state = 'playing';
+    this.lastTime = performance.now();
+    requestAnimationFrame(this.loop);
+  }
+
+  togglePause(){
+    if(this.state==='playing'){ 
+      this.state='paused'; 
+      document.getElementById('pauseBtn').textContent='▶ Resume';
+    } else if(this.state==='paused'){
+      this.state='playing';
+      this.lastTime = performance.now();
+      requestAnimationFrame(this.loop);
+      document.getElementById('pauseBtn').textContent='⏸ Pause';
+    }
+  }
+
+  gameOver(){
+    this.state='gameOver';
+    audioManager.playSound('fail');
+    if(this.score > this.highScore){
+      this.highScore = this.score;
+      localStorage.setItem('zumaHighScore', this.highScore);
+    }
+    setTimeout(()=>{
+      alert(`Game Over!\nScore: ${this.score}\nHigh: ${this.highScore}\nCombo Terbaik: ${this.bestCombo}`);
+    }, 100);
+  }
+
+  randomColor(){
+    return this.colors[Math.floor(Math.random()*this.colors.length)];
+  }
+
+  rotateShooter(delta){
+    this.shooter.angle += delta;
+    const maxA = Math.PI - 0.2, minA = -Math.PI + 0.2;
+    this.shooter.angle = clamp(this.shooter.angle, minA, maxA);
+  }
+
+  fire(){
+    if(this.state!=='playing') return;
+    audioManager.playSound('shoot');
+    const spd = 8;
+    const vx = Math.cos(this.shooter.angle)*spd;
+    const vy = Math.sin(this.shooter.angle)*spd;
+    this.shots.push({
+      x: this.shooter.x, y: this.shooter.y,
+      vx, vy, color: this.shooter.nextColor
+    });
+    this.shooter.nextColor = this.randomColor();
+  }
+
+  swap(){
+    // Untuk kesederhanaan, random ulang warna berikut
+    this.shooter.nextColor = this.randomColor();
+  }
+
+  indexToPoint(idx){
+    const i = Math.round(idx);
+    const clamped = clamp(i, 0, this.maxPathIndex);
+    return this.path[clamped];
+  }
+
+  update(dt){
+    // Majukan rantai
+    for(const m of this.marbles){ m.t += this.speed; }
+    // Hapus yang melewati lubang -> game over
+    const head = this.marbles[this.marbles.length-1];
+    if(head && head.t >= this.holeIndex){
+      this.gameOver();
+      return;
+    }
+    // Spawn tambahan di belakang agar jarak terjaga
+    while(this.marbles.length && this.marbles[0].t > -this.spacing*2){
+      const firstT = this.marbles[0].t - this.spacing;
+      this.marbles.unshift({ t:firstT, color: this.randomColor() });
+    }
+
+    // Update peluru
+    for(const s of this.shots){ s.x += s.vx; s.y += s.vy; }
+    // Buang peluru yang keluar layar
+    this.shots = this.shots.filter(s => s.x>-40 && s.x<this.width+40 && s.y>-40 && s.y<this.height+40);
+
+    // Cek tabrakan peluru ke rantai
+    for(let si=this.shots.length-1; si>=0; si--){
+      const s = this.shots[si];
+      // cari marble terdekat pada path
+      let hitIndex = -1, hitDist = 1e9, idxAtHit = 0;
+      for(let i=0;i<this.marbles.length;i++){
+        const mp = this.indexToPoint(this.marbles[i].t);
+        const d = dist({x:s.x,y:s.y}, mp);
+        if(d < hitDist){ hitDist=d; hitIndex=i; idxAtHit = this.marbles[i].t; }
+      }
+      if(hitIndex>=0 && hitDist <= this.radius*2){
+        // sisipkan peluru di depan/belakang tergantung posisi relatif
+        const before = this.marbles[hitIndex-1];
+        const after = this.marbles[hitIndex];
+        // Tentukan sisi dengan membandingkan posisi s terhadap arah path lokal
+        const dirAhead = this.indexToPoint(idxAtHit+1);
+        const dirNow = this.indexToPoint(idxAtHit);
+        const dx = dirAhead.x - dirNow.x, dy = dirAhead.y - dirNow.y;
+        // proyeksi ke normal kiri
+        const nx = -dy, ny = dx;
+        const side = (s.x - dirNow.x)*nx + (s.y - dirNow.y)*ny; // >0 satu sisi, <0 sisi lain
+        let insertT;
+        if(side >= 0){
+          // sisip setelah
+          insertT = after.t - this.spacing*0.5;
+          this.marbles.splice(hitIndex+1, 0, { t: insertT, color: s.color });
+        } else {
+          // sisip sebelum
+          const insIndex = Math.max(0, hitIndex);
+          insertT = after.t + this.spacing*0.5;
+          this.marbles.splice(insIndex, 0, { t: insertT, color: s.color });
+        }
+        // Rapikan jarak lokal agar mendekati spacing
+        this.compactAround(hitIndex);
+
+        // Check match 3+
+        const removed = this.tryRemoveMatchesAround(hitIndex);
+        if(removed>0){
+          audioManager.playSound('pop');
+          const combo = removed; 
+          this.bestCombo = Math.max(this.bestCombo, combo);
+          this.score += 10*removed;
+          // percepat level bertahap
+          if(this.score % 150 === 0){ 
+            this.level++; 
+            this.speed += 0.05; 
+          }
+          this.updateUI();
+        }
+        // hapus peluru
+        this.shots.splice(si,1);
+      }
+    }
+  }
+
+  compactAround(centerIndex){
+    // Jaga jarak antar marble sekitar titik sisip
+    for(let i=centerIndex-5;i<=centerIndex+5;i++){
+      if(i<1 || i>=this.marbles.length) continue;
+      const prev = this.marbles[i-1];
+      const cur = this.marbles[i];
+      if(cur.t - prev.t < this.spacing){
+        cur.t = prev.t + this.spacing;
+      }
+    }
+  }
+
+  tryRemoveMatchesAround(i){
+    if(i<0 || i>=this.marbles.length) return 0;
+    const color = this.marbles[i].color;
+    // cari rentang sama warna
+    let L=i, R=i;
+    while(L-1>=0 && this.marbles[L-1].color===color) L--;
+    while(R+1<this.marbles.length && this.marbles[R+1].color===color) R++;
+    const count = R-L+1;
+    if(count>=3){
+      this.marbles.splice(L, count);
+      // tarik rantai sedikit mundur untuk efek collapse
+      for(let k=L;k<this.marbles.length;k++){ this.marbles[k].t -= this.spacing*0.6; }
+      return count;
+    }
+    return 0;
+  }
+
+  render(){
+    const ctx = this.ctx;
+    // background & border hijau nokia-style agar mirip tampilan lama
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0,0,this.width,this.height);
+    ctx.strokeStyle = '#00FF00';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(1,1,this.width-2,this.height-2);
+
+    // grid halus
+    ctx.strokeStyle = '#001100';
+    ctx.lineWidth = 1;
+    for(let x=0; x<=this.width; x+=20){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,this.height); ctx.stroke(); }
+    for(let y=0; y<=this.height; y+=20){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(this.width,y); ctx.stroke(); }
+
+    // render jalur
+    ctx.strokeStyle = '#0a3';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(this.path[0].x, this.path[0].y);
+    for(let i=1;i<this.path.length;i++){ ctx.lineTo(this.path[i].x, this.path[i].y); }
+    ctx.stroke();
+
+    // render lubang
+    const holeP = this.indexToPoint(this.holeIndex);
+    ctx.fillStyle = '#222';
+    ctx.beginPath();
+    ctx.arc(holeP.x, holeP.y, this.radius*1.6, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = '#555';
+    ctx.stroke();
+
+    // render rantai
+    for(const m of this.marbles){
+      const p = this.indexToPoint(m.t);
+      ctx.fillStyle = m.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, this.radius, 0, Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = '#111';
+      ctx.stroke();
+    }
+
+    // render shooter
+    ctx.save();
+    ctx.translate(this.shooter.x, this.shooter.y);
+    ctx.rotate(this.shooter.angle);
+    ctx.fillStyle = '#0f0';
+    ctx.fillRect(-6, -20, 12, 30); // meriam
+    ctx.restore();
+
+    // bola berikut
+    ctx.fillStyle = this.shooter.nextColor;
+    ctx.beginPath();
+    ctx.arc(this.shooter.x, this.shooter.y, this.radius*0.9, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle='#111'; ctx.stroke();
+
+    // peluru
+    for(const s of this.shots){
+      ctx.fillStyle = s.color;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, this.radius*0.8, 0, Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle='#111'; ctx.stroke();
+    }
+
+    if(this.state==='paused' || this.state==='gameOver'){
+      ctx.fillStyle='rgba(0,0,0,0.6)';
+      ctx.fillRect(0,0,this.width,this.height);
+      ctx.fillStyle='#00FF00';
+      ctx.font='bold 24px monospace';
+      ctx.textAlign='center';
+      ctx.fillText(this.state==='paused'?'PAUSED':'GAME OVER', this.width/2, this.height/2);
+    }
+  }
+
+  loop(t){
+    if(this.state!=='playing') return;
+    const dt = (t - this.lastTime) / 16.67;
+    this.lastTime = t;
+    this.update(dt);
+    this.render();
+    requestAnimationFrame(this.loop);
+  }
+
+  updateUI(){
+    document.getElementById('scoreValue').textContent = this.score;
+    document.getElementById('highValue').textContent = this.highScore;
+    document.getElementById('lengthValue').textContent = this.bestCombo; // pakai "Length" utk combo terbaik
+    document.getElementById('speedValue').textContent = this.level;      // pakai "Speed" utk level
+  }
+}
+
+/* ====== Global Instances ====== */
+const audioManager = new AudioManager();
+const controlsManager = new ControlsManager();
+let game = null;
+
+function movePlayer(direction){
+  if(!game) return;
+  if(direction==='left') game.rotateShooter(-0.18);
+  if(direction==='right') game.rotateShooter(0.18);
+  if(direction==='up') game.fire();
+  if(direction==='down') game.swap();
+}
+async function startGame(){
+  if(!game){ game = new ZumaGame(); }
+  await audioManager.initAudio();
+  if(game.state==='start' || game.state==='gameOver'){
+    game.reset();
+    game.start();
+    document.getElementById('startBtn').textContent='🔄 Restart';
+    document.getElementById('pauseBtn').textContent='⏸ Pause';
+  } else if (game.state==='playing'){
+    game.togglePause();
+  } else if (game.state==='paused'){
+    game.start();
+    document.getElementById('pauseBtn').textContent='⏸ Pause';
+  }
+}
+function pauseGame(){ if(game) game.togglePause(); }
+function toggleMute(){
+  const isMuted = audioManager.toggleMute();
+  document.getElementById('muteBtn').textContent = isMuted ? '🔇 Sound' : '🔊 Sound';
+}
+
+/* ====== Shortcuts ====== */
+document.addEventListener('keydown', (e) => {
+  if(e.key===' '){ e.preventDefault(); pauseGame(); }
+  else if(e.key.toLowerCase()==='p'){ e.preventDefault(); pauseGame(); }
+  else if(e.key.toLowerCase()==='s'){ e.preventDefault(); startGame(); }
 });
-</script>
 
+window.addEventListener('load', () => {
+  game = new ZumaGame();
+  document.getElementById('highValue').textContent = Number(localStorage.getItem('zumaHighScore')||0);
+});
 </script>
 </body>
 </html>
