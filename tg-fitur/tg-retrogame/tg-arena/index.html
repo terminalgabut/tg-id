@@ -49,31 +49,36 @@
 
   </div>   
  <footer class="text-center py-6 text-gray-500">© 2025 Terminal Gabut - Semua Hak Dilindungi</footer>
-<script>
-// === SCRIPT ARENA SURVIVAL ===
 
-// Global references
+<script>
+// === Arena Survival pakai Sprite ===
+
+// Global
 window.keys = {};
 window.game = null;
 
-// Input handler
-window.addEventListener('keydown', e => {
+// Input
+window.addEventListener('keydown', e=>{
   keys[e.key.toLowerCase()] = true;
-  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+  if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) e.preventDefault();
 });
-window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+window.addEventListener('keyup', e=>{ keys[e.key.toLowerCase()] = false; });
 
 // Utility
 function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
-function rnd(a,b){return Math.random()*(b-a)+a}
+function rnd(a,b){return Math.random()*(b-a)+a;}
 
-// Player class
+// Player
 class Player {
   constructor(x,y){
-    this.x=x;this.y=y;this.radius=12;this.speed=160;
-    this.hp=3;this.inv=false;this.invTimer=0;
+    this.x=x;this.y=y;
+    this.hp=3;this.power=1;
+    this.speed=200;
     this.attackCooldown=0;this.dashCooldown=0;
-    this.power=1;this.score=0;
+    this.inv=false;this.invTimer=0;
+    this.img=new Image();
+    this.img.src="hero.png"; // file hero.png
+    this.width=64;this.height=64;
   }
   update(dt){
     let vx=0,vy=0;
@@ -84,153 +89,152 @@ class Player {
     if(vx||vy){
       const len=Math.hypot(vx,vy)||1;vx/=len;vy/=len;
       this.x+=vx*this.speed*dt;this.y+=vy*this.speed*dt;
-      this.x=clamp(this.x,20,c.width-20);
-      this.y=clamp(this.y,60,c.height-20);
+      this.x=clamp(this.x,0,c.width-this.width);
+      this.y=clamp(this.y,60,c.height-this.height);
     }
+    if(this.attackCooldown>0)this.attackCooldown-=dt;
+    if(this.dashCooldown>0)this.dashCooldown-=dt;
     if(this.invTimer>0){this.invTimer-=dt;if(this.invTimer<=0)this.inv=false;}
-    this.attackCooldown=Math.max(0,this.attackCooldown-dt);
-    this.dashCooldown=Math.max(0,this.dashCooldown-dt);
   }
   render(ctx){
-    ctx.fillStyle='#fff';
-    ctx.beginPath();ctx.arc(this.x,this.y,this.radius,0,Math.PI*2);ctx.fill();
+    if(this.inv){ctx.globalAlpha=0.6;}
+    ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
+    ctx.globalAlpha=1;
   }
   attack(){
-    if(this.attackCooldown>0) return null;
-    this.attackCooldown=0.35;
-    return {x:this.x,y:this.y,range:32+this.power*6,damage:1+Math.floor(this.power/1.5)};
+    if(this.attackCooldown>0)return null;
+    this.attackCooldown=0.4;
+    return {x:this.x+this.width/2,y:this.y+this.height/2,range:60,damage:1+this.power};
   }
   dash(){
-    if(this.dashCooldown>0) return false;
-    this.dashCooldown=2.5;
-    this.inv=true;this.invTimer=0.25;
-    let dx=0,dy=0;
-    if(keys['arrowleft']||keys['a']) dx=-1;
-    if(keys['arrowright']||keys['d']) dx=1;
-    if(keys['arrowup']||keys['w']) dy=-1;
-    if(keys['arrowdown']||keys['s']) dy=1;
-    if(dx||dy){
-      const len=Math.hypot(dx,dy)||1;dx/=len;dy/=len;
-      this.x=clamp(this.x+dx*80,20,c.width-20);
-      this.y=clamp(this.y+dy*80,60,c.height-20);
-    }
-    return true;
+    if(this.dashCooldown>0)return;
+    this.dashCooldown=2;
+    this.inv=true;this.invTimer=0.3;
+    if(keys['arrowleft']) this.x-=80;
+    if(keys['arrowright']) this.x+=80;
   }
 }
 
-// Enemy & Boss
+// Enemy
 class Enemy {
-  constructor(x,y,hp,spd,type='soldier'){
-    this.x=x;this.y=y;this.hp=hp;this.maxhp=hp;this.spd=spd;this.type=type;
-    this.alive=true;this.radius=10;this.retarget=0;this.dirx=0;this.diry=0;
+  constructor(side,y,hp,speed){
+    this.x=side==='left'? -60 : c.width+60;
+    this.y=y;this.hp=hp;this.speed=speed;this.alive=true;
+    this.img=new Image();this.img.src="enemy.png";
+    this.width=50;this.height=50;
+    this.dir = side==='left'?1:-1;
   }
   update(dt,player){
     if(!this.alive)return;
-    this.retarget-=dt;
-    if(this.retarget<=0){
-      this.retarget=rnd(0.4,1.2);
-      const angle=Math.atan2(player.y-this.y,player.x-this.x)+rnd(-0.5,0.5);
-      this.dirx=Math.cos(angle);this.diry=Math.sin(angle);
-    }
-    this.x+=this.dirx*this.spd*dt;this.y+=this.diry*this.spd*dt;
-    this.x=clamp(this.x,20,c.width-20);this.y=clamp(this.y,60,c.height-20);
+    this.x+=this.dir*this.speed*dt;
+    // arahkan ke player
+    if(player.x>this.x) this.x+=this.speed*dt*0.2;
+    if(player.x<this.x) this.x-=this.speed*dt*0.2;
   }
   render(ctx){
     if(!this.alive)return;
-    ctx.fillStyle='#bbb';
-    ctx.beginPath();ctx.arc(this.x,this.y,this.radius,0,Math.PI*2);ctx.fill();
+    ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
   }
 }
+
+// Boss
 class Boss extends Enemy{
-  constructor(x,y,wave){
-    super(x,y,15+wave*8,30+wave*4,'boss');
-    this.radius=18;this.wave=wave;this.phase=0;this.attackTimer=0;
+  constructor(wave){
+    super('left',c.height-140,20+wave*10,80);
+    this.img=new Image();this.img.src="boss.png"; // opsional
+    this.width=100;this.height=100;
+    this.maxhp=this.hp;
   }
-  update(dt,player){
-    this.attackTimer-=dt;
-    if(this.wave%3===1){
-      if(this.attackTimer<=0){this.attackTimer=1.8;
-        const ang=Math.atan2(player.y-this.y,player.x-this.x);
-        this.dirx=Math.cos(ang);this.diry=Math.sin(ang);
-        this.x+=this.dirx*60;this.y+=this.diry*60;}
-    } else if(this.wave%3===2){
-      if(this.attackTimer<=0){this.attackTimer=0.9;this.dirx=rnd(-1,1);this.diry=rnd(-1,1);}
-      this.x+=this.dirx*this.spd*dt*1.2;this.y+=this.diry*this.spd*dt*1.2;
-    } else {
-      this.phase+=dt;
-      this.x+=Math.cos(this.phase)*10*dt*60;this.y+=Math.sin(this.phase)*6*dt*60;
-    }
-    this.x=clamp(this.x,20,c.width-20);this.y=clamp(this.y,60,c.height-20);
+  render(ctx){
+    if(!this.alive)return;
+    ctx.drawImage(this.img,this.x,this.y,this.width,this.height);
   }
 }
 
 // Game
-class Game{
+class Game {
   constructor(){
-    this.player=new Player(c.width/2,c.height/2);
+    this.player=new Player(c.width/2,c.height-120);
     this.enemies=[];this.boss=null;
     this.wave=1;this.lives=3;this.score=0;
-    this.playing=false;this.paused=false;
-    this.spawnTimer=0;this.enemyCount=0;
     this.attackHits=[];this.lastTime=performance.now();
+    this.playing=false;
   }
-  start(){if(this.playing)return;this.reset();this.playing=true;this.paused=false;this.loop();}
-  reset(){this.player=new Player(c.width/2,c.height/2);
-    this.enemies=[];this.boss=null;this.wave=1;this.lives=3;this.score=0;this.enemyCount=0;
-    updateHUD();}
-  loop(){if(!this.playing)return;const now=performance.now();const dt=(now-this.lastTime)/1000;this.lastTime=now;
-    if(!this.paused){this.update(dt);this.render();}requestAnimationFrame(()=>this.loop());}
+  start(){if(this.playing)return;this.reset();this.playing=true;this.loop();}
+  reset(){this.player=new Player(c.width/2,c.height-120);
+    this.enemies=[];this.boss=null;this.wave=1;this.lives=3;this.score=0;updateHUD();}
+  loop(){
+    if(!this.playing)return;
+    const now=performance.now();const dt=(now-this.lastTime)/1000;this.lastTime=now;
+    this.update(dt);this.render();
+    requestAnimationFrame(()=>this.loop());
+  }
   update(dt){
     this.player.update(dt);
-    if(!this.boss&&this.enemyCount<10){
-      this.spawnTimer-=dt;
-      if(this.spawnTimer<=0){
-        this.spawnTimer=0.4;
-        this.enemies.push(new Enemy(rnd(40,c.width-40),rnd(80,c.height-40),1+this.wave*0.6,30+this.wave*6));
-        this.enemyCount++;
+    // spawn enemies
+    if(this.enemies.length<10 && !this.boss){
+      if(Math.random()<0.02){
+        const side=Math.random()<0.5?'left':'right';
+        this.enemies.push(new Enemy(side,c.height-120,2+this.wave,60+this.wave*5));
       }
     }
-    if(this.enemyCount>=10&&!this.boss&&this.enemies.filter(e=>e.alive).length===0){
-      this.boss=new Boss(c.width/2,90,this.wave);
-    }
     this.enemies.forEach(e=>e.update(dt,this.player));
+    // boss spawn
+    if(this.enemies.filter(e=>e.alive).length===0 && this.enemies.length>=10 && !this.boss){
+      this.boss=new Boss(this.wave);
+    }
     if(this.boss) this.boss.update(dt,this.player);
-    // attacks
-    if(this.attackHits.length>0){
-      for(let i=this.attackHits.length-1;i>=0;i--){
-        const a=this.attackHits[i];a.t-=dt;if(a.t<=0)this.attackHits.splice(i,1);
-        else{
-          for(const en of this.enemies){if(en.alive){const d=Math.hypot(en.x-a.x,en.y-a.y);if(d<a.range){en.hp-=a.damage;if(en.hp<=0){en.alive=false;this.score+=50;}}}}
-          if(this.boss&&this.boss.alive){const d=Math.hypot(this.boss.x-a.x,this.boss.y-a.y);if(d<a.range){this.boss.hp-=a.damage;if(this.boss.hp<=0){this.boss.alive=false;this.score+=500;this.prepareNextWave();}}}
+
+    // serangan
+    for(let i=this.attackHits.length-1;i>=0;i--){
+      const a=this.attackHits[i];a.t-=dt;
+      if(a.t<=0)this.attackHits.splice(i,1);
+      else{
+        this.enemies.forEach(en=>{
+          if(en.alive){
+            const d=Math.hypot(en.x-a.x,en.y-a.y);
+            if(d<a.range){en.hp-=a.damage;if(en.hp<=0){en.alive=false;this.score+=50;}}
+          }
+        });
+        if(this.boss && this.boss.alive){
+          const d=Math.hypot(this.boss.x-a.x,this.boss.y-a.y);
+          if(d<a.range){this.boss.hp-=a.damage;if(this.boss.hp<=0){this.score+=500;this.wave++;this.player.power++;this.boss=null;this.enemies=[];}}
         }
       }
     }
-    // collisions
-    for(const en of this.enemies){if(en.alive){if(Math.hypot(en.x-this.player.x,en.y-this.player.y)<en.radius+this.player.radius){if(!this.player.inv){this.lives--;this.player.inv=true;this.player.invTimer=0.8;if(this.lives<=0)this.gameOver();}}}}
-    if(this.boss&&this.boss.alive){if(Math.hypot(this.boss.x-this.player.x,this.boss.y-this.player.y)<this.boss.radius+this.player.radius){if(!this.player.inv){this.lives--;this.player.inv=true;this.player.invTimer=0.8;if(this.lives<=0)this.gameOver();}}}
     updateHUD();
   }
-  prepareNextWave(){this.player.power++;this.wave++;this.enemies=[];this.boss=null;this.enemyCount=0;this.spawnTimer=1;}
   render(){
-    ctx.fillStyle='#000';ctx.fillRect(0,0,c.width,c.height);
-    ctx.fillStyle='#111';ctx.fillRect(0,c.height-40,c.width,40);
-    if(this.boss&&this.boss.alive){
-      const bw=360,bh=14,x=(c.width-bw)/2,y=18;
-      ctx.fillStyle='#222';ctx.fillRect(x-2,y-2,bw+4,bh+4);
-      ctx.fillStyle='#111';ctx.fillRect(x,y,bw,bh);
-      ctx.fillStyle='#fff';ctx.fillRect(x,y,bw*(this.boss.hp/this.boss.maxhp),bh);
-      ctx.fillStyle='#fff';ctx.font='14px sans-serif';ctx.textAlign='center';ctx.fillText('BOSS',c.width/2,y-6);
-    }
+    ctx.fillStyle="#000";ctx.fillRect(0,0,c.width,c.height);
+    // ground
+    ctx.fillStyle="#111";ctx.fillRect(0,c.height-40,c.width,40);
     this.player.render(ctx);
     this.enemies.forEach(e=>e.render(ctx));
-    if(this.boss&&this.boss.alive)this.boss.render(ctx);
+    if(this.boss) this.boss.render(ctx);
+    // boss HP bar
+    if(this.boss && this.boss.alive){
+      const bw=300,bh=14,x=(c.width-bw)/2,y=20;
+      ctx.fillStyle="#333";ctx.fillRect(x-2,y-2,bw+4,bh+4);
+      ctx.fillStyle="#111";ctx.fillRect(x,y,bw,bh);
+      ctx.fillStyle="#f00";ctx.fillRect(x,y,bw*(this.boss.hp/this.boss.maxhp),bh);
+    }
+    // slash effect
+    this.attackHits.forEach(a=>{
+      ctx.strokeStyle="rgba(255,0,0,0.6)";
+      ctx.lineWidth=6;
+      ctx.beginPath();
+      ctx.arc(a.x,a.y,a.range,0,Math.PI/2);
+      ctx.stroke();
+    });
   }
-  playerAttack(){const atk=this.player.attack();if(atk){this.attackHits.push({x:atk.x,y:atk.y,range:atk.range,damage:atk.damage,t:0.12});}}
+  playerAttack(){
+    const atk=this.player.attack();
+    if(atk){this.attackHits.push({x:atk.x,y:atk.y,range:atk.range,damage:atk.damage,t:0.15});}
+  }
   playerDash(){this.player.dash();}
-  gameOver(){this.playing=false;alert('Game Over! Score: '+this.score);}
 }
 
-// Setup canvas & HUD
+// Canvas & HUD
 const c=document.getElementById('c');const ctx=c.getContext('2d');
 function updateHUD(){
   document.getElementById('score').textContent=game.score;
@@ -240,12 +244,12 @@ function updateHUD(){
 }
 window.addEventListener('load',()=>{window.game=new Game();updateHUD();});
 
-// Keyboard shortcuts
-window.addEventListener('keydown', e=>{
+// Keyboard attack/skill
+window.addEventListener('keydown',e=>{
   if(e.key.toLowerCase()==='z'){game.playerAttack();}
   if(e.key.toLowerCase()==='x'){game.playerDash();}
-  if(e.key.toLowerCase()==='p'){game.paused=!game.paused;}
 });
+</script>
 
 </script>
 </body>
