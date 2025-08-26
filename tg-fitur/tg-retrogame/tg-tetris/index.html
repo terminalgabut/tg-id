@@ -4,225 +4,121 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Retro Blocks — Mobile Friendly</title>
+  <title>Terminal Gabut | Retro Blocks</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
-    :root{--bg:#0b1020;--panel:#0f1724;--accent:#26c6da;--cell:#111827}
-    html,body{height:100%;margin:0;background:var(--bg);font-family:Inter, system-ui, Arial}
-    .app{height:100%;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box}
-    .container{width:100%;max-width:540px;height:100%;display:flex;flex-direction:column;gap:12px}/* Game area stretches to fill available space (full container on mobile) */
-.stage-wrap{flex:1;display:flex;align-items:center;justify-content:center}
-canvas{background:linear-gradient(180deg,#071028 0%, #081226 100%);border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.6);max-height:100%;width:100%;height:auto}
-
-.hud{display:flex;gap:12px;align-items:center;justify-content:space-between}
-.info{color:#cbd5e1;font-size:13px}
-
-/* Controls: large buttons for mobile */
-.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.btn{background:var(--panel);color:#fff;padding:14px 16px;border-radius:12px;min-width:64px;text-align:center;font-weight:600;box-shadow:0 4px 12px rgba(2,6,23,.6);user-select:none}
-.btn:active{transform:translateY(2px)}
-.flex-row{display:flex;gap:8px}
-
-/* Make sure UI is comfortable on phones */
-@media(min-width:700px){
-  canvas{height:560px}
-  .btn{padding:10px 14px}
-}
-
+    body { font-family: 'Inter', system-ui, Arial; background:#f9fafb; }
+    canvas { image-rendering: pixelated; }
   </style>
 </head>
-<body>
-  <div class="app">
-    <div class="container">
-      <div class="hud">
-        <div class="info">Retro Blocks — Mobile</div>
-        <div class="info">Score: <span id="score">0</span></div>
-      </div><div class="stage-wrap">
-    <canvas id="stage"></canvas>
-  </div>
-
-  <div class="controls" role="group" aria-label="game controls">
-    <div class="flex-row">
-      <div class="btn" id="left">◀</div>
-      <div class="btn" id="right">▶</div>
+<body class="flex flex-col min-h-screen">
+  <!-- NAVBAR -->
+  <header class="bg-white shadow flex items-center justify-between px-6 py-3">
+    <div class="font-bold text-lg">Terminal Gabut Logo</div>
+    <nav class="flex items-center gap-6">
+      <a href="#" class="hover:text-blue-600">Home</a>
+      <a href="#" class="hover:text-blue-600">Fitur</a>
+    </nav>
+    <div class="text-xl">🌙</div>
+  </header>  <!-- HEADER: Score/Lines/Level -->  <div class="header-container bg-blue-600 text-white flex justify-around p-4">
+    <div><strong>Score:</strong> <span id="score">0</span></div>
+    <div><strong>Lines:</strong> <span id="lines">0</span></div>
+    <div><strong>Level:</strong> <span id="level">1</span></div>
+  </div>  <!-- GAME AREA -->  <main class="messages flex items-center justify-center bg-gray-50 flex-1">
+    <canvas id="board" width="240" height="480" class="bg-gray-900 rounded"></canvas>
+  </main>  <!-- GAMEPAD -->  <div class="input-container flex flex-col items-center bg-white p-4 gap-3">
+    <div class="flex justify-center gap-6">
+      <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('left')">⬅️</button>
+      <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('up')">⬆️</button>
+      <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('rotate')">⟳</button>
+      <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('drop')">⬇️</button>
+      <button class="px-4 py-2 bg-blue-600 text-white rounded" onclick="move('right')">➡️</button>
     </div>
-
-    <div class="flex-row">
-      <!-- Up now moves UP only (as requested) -->
-      <div class="btn" id="up">▲ (Up)</div>
-      <!-- Rotate button added separately -->
-      <div class="btn" id="rotate">⟳ Rotate</div>
-      <!-- Down = HARD DROP -->
-      <div class="btn" id="down">▼ Drop</div>
+    <div class="flex gap-6">
+      <button class="px-6 py-2 bg-blue-500 text-white rounded" onclick="togglePause()">⏯ Start/Pause</button>
+      <button class="px-6 py-2 bg-red-500 text-white rounded" onclick="restart()">🔄 Restart</button>
     </div>
-
-    <div class="flex-row">
-      <div class="btn" id="pause">Pause</div>
-      <div class="btn" id="restart">Restart</div>
-    </div>
-  </div>
-</div>
-
-  </div>  <script>
-    // --- Simple Tetris-like implementation (single-file, mobile-friendly)
-    const COLS = 10, ROWS = 20, CELL = 28; // CELL is visual size (px)
-    const canvas = document.getElementById('stage');
+  </div>  <footer class="bg-gray-100 text-center py-3 text-sm text-gray-600">© 2025 Terminal Gabut - Semua Hak Dilindungi</footer>  <script>
+    // --- Simple Tetris core logic ---
+    const COLS = 10, ROWS = 20, BLOCK = 24;
+    const canvas = document.getElementById('board');
     const ctx = canvas.getContext('2d');
     const scoreEl = document.getElementById('score');
+    const linesEl = document.getElementById('lines');
+    const levelEl = document.getElementById('level');
 
-    // Resize canvas to fit container while keeping aspect ratio
-    function resizeCanvas(){
-      const wrap = canvas.parentElement;
-      const maxW = wrap.clientWidth;
-      const maxH = wrap.clientHeight;
-      // scale to available width within max width, but not exceed a height
-      const scale = Math.min(maxW / (COLS*CELL), maxH / (ROWS*CELL));
-      const w = Math.floor(COLS*CELL*scale);
-      const h = Math.floor(ROWS*CELL*scale);
-      canvas.width = COLS*CELL; canvas.height = ROWS*CELL;
-      canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
-    }
-    window.addEventListener('resize', resizeCanvas);
+    let grid, current, score, lines, level;
+    let dropCounter, dropInterval, lastTime, paused, gameOver;
 
-    // Game state
-    let grid = createMatrix(COLS, ROWS);
-    let score = 0;
-    let dropInterval = 700;
-    let lastTime = 0;
-    let dropCounter = 0;
-    let current = null;
-    let gameOver = false;
-    let paused = false;
-
-    // Tetromino shapes
     const SHAPES = {
-      I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
-      J: [[1,0,0],[1,1,1],[0,0,0]],
-      L: [[0,0,1],[1,1,1],[0,0,0]],
-      O: [[1,1],[1,1]],
-      S: [[0,1,1],[1,1,0],[0,0,0]],
-      T: [[0,1,0],[1,1,1],[0,0,0]],
-      Z: [[1,1,0],[0,1,1],[0,0,0]]
+      I:[[1,1,1,1]], J:[[1,0,0],[1,1,1]], L:[[0,0,1],[1,1,1]],
+      O:[[1,1],[1,1]], S:[[0,1,1],[1,1,0]], T:[[0,1,0],[1,1,1]], Z:[[1,1,0],[0,1,1]]
     };
     const COLORS = {I:'#26c6da',J:'#7c4dff',L:'#ffb74d',O:'#fdd835',S:'#66bb6a',T:'#ef5350',Z:'#42a5f5'};
-    const KEYS = {left:'ArrowLeft',right:'ArrowRight',down:'ArrowDown',up:'ArrowUp',rotate:'x'}
 
     function createMatrix(w,h){
-      const m = [];
-      for(let y=0;y<h;y++){
-        m.push(new Array(w).fill(0));
-      }
-      return m;
+      return Array.from({length:h},()=>Array(w).fill(0));
     }
 
     function draw(){
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      // background
-      ctx.fillStyle = '#081226';
+      ctx.fillStyle = '#111827';
       ctx.fillRect(0,0,canvas.width,canvas.height);
-
-      const cellW = canvas.width / COLS;
-      const cellH = canvas.height / ROWS;
-
-      // draw grid cells
-      for(let y=0;y<ROWS;y++){
-        for(let x=0;x<COLS;x++){
-          if(grid[y][x]){
-            ctx.fillStyle = COLORS[grid[y][x]] || '#999';
-            roundRect(ctx, x*cellW+1, y*cellH+1, cellW-2, cellH-2, Math.max(2, cellW*0.08));
-            ctx.fill();
-          }
-        }
-      }
-
-      // draw current piece
-      if(current){
-        const m = current.matrix;
-        ctx.fillStyle = COLORS[current.type];
-        for(let y=0;y<m.length;y++){
-          for(let x=0;x<m[y].length;x++){
-            if(m[y][x]){
-              roundRect(ctx, (current.x+x)*cellW+1, (current.y+y)*cellH+1, cellW-2, cellH-2, Math.max(2, cellW*0.08));
-              ctx.fill();
-            }
-          }
-        }
-      }
-
-      // grid lines (subtle)
-      ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-      ctx.lineWidth = 1;
-      for(let x=0;x<=COLS;x++){ ctx.beginPath(); ctx.moveTo(x*cellW,0); ctx.lineTo(x*cellW,canvas.height); ctx.stroke(); }
-      for(let y=0;y<=ROWS;y++){ ctx.beginPath(); ctx.moveTo(0,y*cellH); ctx.lineTo(canvas.width,y*cellH); ctx.stroke(); }
+      drawMatrix(grid,{x:0,y:0});
+      if(current) drawMatrix(current.matrix,{x:current.x,y:current.y},current.type);
     }
 
-    function roundRect(ctx, x, y, w, h, r){
-      ctx.beginPath();
-      ctx.moveTo(x+r, y);
-      ctx.arcTo(x+w, y, x+w, y+h, r);
-      ctx.arcTo(x+w, y+h, x, y+h, r);
-      ctx.arcTo(x, y+h, x, y, r);
-      ctx.arcTo(x, y, x+w, y, r);
-      ctx.closePath();
+    function drawMatrix(matrix, offset, type){
+      ctx.fillStyle = COLORS[type] || '#ccc';
+      for(let y=0;y<matrix.length;y++){
+        for(let x=0;x<matrix[y].length;x++){
+          if(matrix[y][x]){
+            ctx.fillRect((x+offset.x)*BLOCK,(y+offset.y)*BLOCK,BLOCK-1,BLOCK-1);
+          }
+        }
+      }
     }
 
     function collide(grid, piece){
-      const m = piece.matrix;
-      for(let y=0;y<m.length;y++){
-        for(let x=0;x<m[y].length;x++){
-          if(m[y][x]){
-            const gy = piece.y + y;
-            const gx = piece.x + x;
-            if(gy < 0 || gx < 0 || gx >= COLS || gy >= ROWS) return true;
-            if(grid[gy][gx]) return true;
+      for(let y=0;y<piece.matrix.length;y++){
+        for(let x=0;x<piece.matrix[y].length;x++){
+          if(piece.matrix[y][x] && (grid[y+piece.y] && grid[y+piece.y][x+piece.x])!==0){
+            return true;
           }
         }
       }
       return false;
     }
 
-    function merge(grid, piece){
+    function merge(grid,piece){
       piece.matrix.forEach((row,y)=>{
-        row.forEach((val,x)=>{
-          if(val){
-            grid[piece.y+y][piece.x+x] = piece.type;
-          }
-        })
-      })
+        row.forEach((val,x)=>{ if(val) grid[y+piece.y][x+piece.x]=piece.type; })
+      });
     }
 
-    function rotateMatrix(m){
-      // rotate clockwise (transpose + reverse rows)
-      const N = m.length;
-      const res = Array.from({length:N}, ()=> new Array(N).fill(0));
-      for(let y=0;y<N;y++) for(let x=0;x<N;x++) res[x][N-1-y] = m[y][x];
-      return res;
+    function rotate(m){
+      return m[0].map((_,i)=>m.map(row=>row[i]).reverse());
     }
 
     function sweep(){
-      let lines = 0;
-      outer: for(let y=ROWS-1;y>=0;y--){
-        for(let x=0;x<COLS;x++) if(!grid[y][x]) continue outer;
-        const row = grid.splice(y,1)[0];
-        grid.unshift(new Array(COLS).fill(0));
-        lines++;
-        y++; // recheck same y after shifting
+      let rowCount=1;
+      outer: for(let y=grid.length-1;y>=0;y--){
+        for(let x=0;x<grid[y].length;x++) if(!grid[y][x]) continue outer;
+        grid.splice(y,1);
+        grid.unshift(Array(COLS).fill(0));
+        lines += rowCount; score += rowCount*100; rowCount*=2;
+        if(lines % 10===0) level++;
       }
-      if(lines){ score += 100 * lines; scoreEl.textContent = score; }
+      scoreEl.textContent=score; linesEl.textContent=lines; levelEl.textContent=level;
     }
 
     function spawn(){
-      const types = Object.keys(SHAPES);
-      const t = types[Math.floor(Math.random()*types.length)];
-      const matrix = SHAPES[t].map(row=>row.slice());
-      const piece = {type:t, matrix, x: Math.floor((COLS - matrix[0].length)/2), y: -matrix.length};
-      current = piece;
-      if(collide(grid, current)){
-        gameOver = true;
-      }
+      const types=Object.keys(SHAPES);
+      const t=types[Math.floor(Math.random()*types.length)];
+      current={matrix:SHAPES[t].map(r=>r.slice()),type:t,x:(COLS>>1)-2,y:0};
+      if(collide(grid,current)) gameOver=true;
     }
 
     function drop(){
-      if(!current) return;
       current.y++;
       if(collide(grid,current)){
         current.y--;
@@ -230,109 +126,38 @@ canvas{background:linear-gradient(180deg,#071028 0%, #081226 100%);border-radius
         sweep();
         spawn();
       }
-    }
-
-    function hardDrop(){
-      if(!current) return;
-      while(!collide(grid, {...current, y: current.y+1})) current.y++;
-      merge(grid,current);
-      sweep();
-      spawn();
+      dropCounter=0;
     }
 
     function move(dir){
-      if(!current) return;
-      current.x += dir;
-      if(collide(grid,current)) current.x -= dir;
+      if(gameOver) return;
+      if(dir==='left'){current.x--; if(collide(grid,current)) current.x++;}
+      if(dir==='right'){current.x++; if(collide(grid,current)) current.x--;}
+      if(dir==='down'||dir==='drop'){while(!collide(grid,{...current,y:current.y+1})) current.y++; drop();}
+      if(dir==='rotate'){let m=rotate(current.matrix);let prev=current.matrix;current.matrix=m;if(collide(grid,current)) current.matrix=prev;}
+      if(dir==='up'){current.y--; if(collide(grid,current)) current.y++;}
+      draw();
     }
 
-    function rotatePiece(){
-      if(!current) return;
-      const orig = current.matrix;
-      const rotated = rotateMatrix(padToSquare(orig));
-      // try wall-kick offsets
-      const kicks = [0, -1, 1, -2, 2];
-      for(let k of kicks){
-        current.matrix = trimmed(rotated);
-        current.x += k;
-        if(!collide(grid,current)) return;
-        current.x -= k;
-      }
-      current.matrix = orig; // revert
-    }
-
-    function padToSquare(m){
-      const n = Math.max(m.length, m[0].length);
-      const res = Array.from({length:n}, ()=> new Array(n).fill(0));
-      for(let y=0;y<m.length;y++) for(let x=0;x<m[y].length;x++) res[y][x] = m[y][x];
-      return res;
-    }
-    function trimmed(m){
-      // remove empty outer rows/cols
-      let top=0,bot=m.length-1,left=0,right=m[0].length-1;
-      while(top<=bot && m[top].every(v=>v==0)) top++;
-      while(bot>=top && m[bot].every(v=>v==0)) bot--;
-      while(left<=right && m.every(r=>r[left]==0)) left++;
-      while(right>=left && m.every(r=>r[right]==0)) right--;
-      const out = [];
-      for(let y=top;y<=bot;y++) out.push(m[y].slice(left,right+1));
-      return out.length?out:[[0]];
-    }
-
-    // Main loop
     function update(time=0){
-      if(paused || gameOver) return draw();
-      const delta = time - lastTime;
-      lastTime = time;
-      dropCounter += delta;
-      if(dropCounter > dropInterval){
-        drop();
-        dropCounter = 0;
-      }
+      if(paused||gameOver) return draw();
+      const delta=time-lastTime; lastTime=time; dropCounter+=delta;
+      if(dropCounter>dropInterval){ drop(); }
       draw();
       requestAnimationFrame(update);
     }
 
-    // Controls wiring
-    document.getElementById('left').addEventListener('pointerdown', ()=>{ move(-1); draw(); });
-    document.getElementById('right').addEventListener('pointerdown', ()=>{ move(1); draw(); });
-    document.getElementById('up').addEventListener('pointerdown', ()=>{ // UP only moves up one cell
-      if(!current) return; current.y = Math.max(-current.matrix.length, current.y - 1); if(collide(grid,current)) current.y++;
-      draw();
-    });
-    document.getElementById('rotate').addEventListener('pointerdown', ()=>{ rotatePiece(); draw(); });
-    document.getElementById('down').addEventListener('pointerdown', ()=>{ hardDrop(); draw(); });
-    document.getElementById('pause').addEventListener('pointerdown', ()=>{ paused = !paused; if(!paused) requestAnimationFrame(update); document.getElementById('pause').textContent = paused? 'Resume':'Pause'; });
-    document.getElementById('restart').addEventListener('pointerdown', ()=>{ reset(); });
+    function togglePause(){ paused=!paused; if(!paused) requestAnimationFrame(update); }
+    function restart(){ init(); }
 
-    // Keyboard support (for desktop testing)
-    window.addEventListener('keydown', e=>{
-      if(e.key === 'ArrowLeft') { move(-1); draw(); }
-      if(e.key === 'ArrowRight') { move(1); draw(); }
-      if(e.key === 'ArrowUp') { // up = move up (not rotate)
-        if(!current) return; current.y = Math.max(-current.matrix.length, current.y - 1); if(collide(grid,current)) current.y++;
-        draw();
-      }
-      if(e.key === 'ArrowDown'){ hardDrop(); draw(); }
-      if(e.key === 'x' || e.key === 'X') { rotatePiece(); draw(); }
-      if(e.key === ' ') { paused = !paused; if(!paused) requestAnimationFrame(update); }
-    });
-
-    function reset(){
-      grid = createMatrix(COLS, ROWS);
-      score = 0; scoreEl.textContent = 0;
-      lastTime = 0; dropCounter = 0; gameOver = false; paused = false;
+    function init(){
+      grid=createMatrix(COLS,ROWS);
+      score=0; lines=0; level=1;
+      scoreEl.textContent=0; linesEl.textContent=0; levelEl.textContent=1;
+      dropCounter=0; dropInterval=700; lastTime=0; paused=false; gameOver=false;
       spawn(); requestAnimationFrame(update);
     }
 
-    // initial setup
-    resizeCanvas();
-    reset();
-
-    // Helpful: prevent scrolling when touching controls on mobile
-    document.querySelectorAll('.btn').forEach(b=>{
-      b.addEventListener('touchstart', e=>e.preventDefault());
-    });
-
+    init();
   </script></body>
 </html>
