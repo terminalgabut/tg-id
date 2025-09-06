@@ -233,45 +233,52 @@
     }
 
     async function sendMessage() {
-      const input = document.getElementById('userInput');
-      const message = input.value.trim();
-      if (!message) return;
+  const input = document.getElementById('userInput');
+  const message = input.value.trim();
+  if (!message) return;
 
-      if (welcomeShown) {
-        const welcome = document.getElementById('welcome');
-        if (welcome) welcome.remove();
-        welcomeShown = false;
-      }
+  if (welcomeShown) {
+    const welcome = document.getElementById('welcome');
+    if (welcome) welcome.remove();
+    welcomeShown = false;
+  }
 
-      appendMessage(message, 'user');
-      input.value = '';
-      input.style.height = "auto";
+  appendMessage(message, 'user');
+  input.value = '';
+  input.style.height = "auto";
 
-      document.getElementById('typing-indicator').style.display = "block";
+  document.getElementById('typing-indicator').style.display = "block";
 
-      try {
-        const response = await fetch(apiUrlChat, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message,
-            session_id: sessionId,
-            mode: "qa"
-          })
-        });
+  try {
+    const response = await fetch(apiUrlChat, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message,
+        session_id: sessionId,
+        mode: "qa",
+        slug: "jurumiya-bab1" // <<--- tambahin ini
+      })
+    });
 
-        if (!response.ok) throw new Error('Server error');
-        const data = await response.json();
+    if (!response.ok) throw new Error('Server error');
+    const data = await response.json();
 
-        document.getElementById('typing-indicator').style.display = "none";
-        appendMessage(data.reply, 'bot');
+    document.getElementById('typing-indicator').style.display = "none";
 
-      } catch (error) {
-        document.getElementById('typing-indicator').style.display = "none";
-        appendMessage('❌ Innalillahi terjadi kesalahan: ' + error.message, 'bot');
-      }
+    // kasih info kalau materi dipakai
+    let botReply = data.reply;
+    if (data.materi_used) {
+      botReply = `📖 (Materi dimuat dari Supabase)\n\n` + botReply;
     }
 
+    appendMessage(botReply, 'bot');
+
+  } catch (error) {
+    document.getElementById('typing-indicator').style.display = "none";
+    appendMessage('❌ Innalillahi terjadi kesalahan: ' + error.message, 'bot');
+  }
+    }
     const inputEl = document.getElementById('userInput');
     inputEl.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && !e.shiftKey) {
