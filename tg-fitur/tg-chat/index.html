@@ -269,7 +269,7 @@
     // kasih info kalau materi dipakai
     let botReply = data.reply;
     if (data.materi_used) {
-      botReply = `📖 (Materi dimuat dari Supabase)\n\n` + botReply;
+      botReply = + botReply;
     }
 
     appendMessage(botReply, 'bot');
