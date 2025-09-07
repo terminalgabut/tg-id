@@ -266,12 +266,6 @@
 
     document.getElementById('typing-indicator').style.display = "none";
 
-    // kasih info kalau materi dipakai
-    let botReply = data.reply;
-    if (data.materi_used) {
-      botReply = + botReply;
-    }
-
     appendMessage(botReply, 'bot');
 
   } catch (error) {
