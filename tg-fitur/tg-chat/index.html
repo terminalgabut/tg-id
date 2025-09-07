@@ -203,36 +203,35 @@
   </div>
 
   <script>
-    const apiUrlChat = 'https://hmmz-bot01.vercel.app/chat';
-    const apiUrlWelcome = 'https://hmmz-bot01.vercel.app/welcome';
-    let welcomeShown = false;
+const apiUrlChat = 'https://hmmz-bot01.vercel.app/chat';
+const apiUrlWelcome = 'https://hmmz-bot01.vercel.app/welcome';
+let welcomeShown = false;
 
-    const sessionId = "sess-" + Math.random().toString(36).substr(2, 9);
+const sessionId = "sess-" + Math.random().toString(36).substr(2, 9);
 
-    function appendMessage(text, sender, id = null) {
-      const messagesDiv = document.getElementById('messages');
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'message ' + sender;
-      if (id) msgDiv.id = id;
+function appendMessage(text, sender, id = null) {
+  const messagesDiv = document.getElementById('messages');
+  const msgDiv = document.createElement('div');
+  msgDiv.className = 'message ' + sender;
+  if (id) msgDiv.id = id;
 
-      msgDiv.innerHTML = sender === "bot" ? marked.parse(text) : text;
-      messagesDiv.insertBefore(msgDiv, document.getElementById('typing-indicator'));
+  msgDiv.innerHTML = sender === "bot" ? marked.parse(text) : text;
+  messagesDiv.insertBefore(msgDiv, document.getElementById('typing-indicator'));
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
 
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
+async function showWelcome() {
+  try {
+    const res = await fetch(apiUrlWelcome);
+    const data = await res.json();
+    appendMessage(data.reply, 'bot', 'welcome');
+    welcomeShown = true;
+  } catch (error) {
+    appendMessage('❌ Astaghfirullah Gagal memuat sambutan.', 'bot', 'welcome');
+  }
+}
 
-    async function showWelcome() {
-      try {
-        const res = await fetch(apiUrlWelcome);
-        const data = await res.json();
-        appendMessage(data.reply, 'bot', 'welcome');
-        welcomeShown = true;
-      } catch (error) {
-        appendMessage('❌ Astaghfirullah Gagal memuat sambutan.', 'bot', 'welcome');
-      }
-    }
-
-    async function sendMessage() {
+async function sendMessage() {
   const input = document.getElementById('userInput');
   const message = input.value.trim();
   if (!message) return;
@@ -257,7 +256,7 @@
         message,
         session_id: sessionId,
         mode: "qa",
-        slug: "jurumiya-bab1" // <<--- tambahin ini
+        slug: "jurumiya-bab1" // selalu pakai materi default
       })
     });
 
@@ -266,26 +265,28 @@
 
     document.getElementById('typing-indicator').style.display = "none";
 
+    // langsung tampilkan reply AI
     appendMessage(data.reply, 'bot');
 
   } catch (error) {
     document.getElementById('typing-indicator').style.display = "none";
     appendMessage('❌ Innalillahi terjadi kesalahan: ' + error.message, 'bot');
   }
-    }
-    const inputEl = document.getElementById('userInput');
-    inputEl.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
-    inputEl.addEventListener('input', function() {
-      this.style.height = "auto";
-      this.style.height = (this.scrollHeight) + "px";
-    });
+}
 
-    window.onload = showWelcome;
+const inputEl = document.getElementById('userInput');
+inputEl.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+inputEl.addEventListener('input', function() {
+  this.style.height = "auto";
+  this.style.height = (this.scrollHeight) + "px";
+});
+
+window.onload = showWelcome;
   </script>
 
  <!-- Footer -->
